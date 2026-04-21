@@ -120,6 +120,7 @@ lxc exec recv1 -- tcpdump -i enp6s0 -n 'ip6 and udp' -c 8
 | `ExecStartPre` shell redirection fails | Command wrapped in `/bin/sh -c '...'` in systemd unit template |
 | `egress_iface` uses wrong default | Set at host level, not inventory `vars:` block |
 | Ansible `become` fails without ACL support | `acl` package added to `common` role dependencies |
+| Binary not rebuilt on redeploy | `creates:` guard removed from build task; binary is now always rebuilt on every playbook run |
 | Bridge MDB empty after deployment | Restart `mcast-join.service` on all receivers post-deploy |
 | Multicast floods to all receivers despite MLD snooping | Enable `multicast_querier` on the bridge (see step 4) — snooping without a querier never suppresses flooding |
 

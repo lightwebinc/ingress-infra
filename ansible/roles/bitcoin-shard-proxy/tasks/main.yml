@@ -47,7 +47,6 @@
   ansible.builtin.command:
     cmd: "{{ go_install_dir }}/bin/go build -buildvcs=false -o {{ proxy_install_dir }}/bitcoin-shard-proxy ."
     chdir: "{{ proxy_install_dir }}"
-    creates: "{{ proxy_install_dir }}/bitcoin-shard-proxy"
   environment:
     PATH: "{{ go_install_dir }}/bin:{{ ansible_env.PATH }}"
     CGO_ENABLED: "0"
