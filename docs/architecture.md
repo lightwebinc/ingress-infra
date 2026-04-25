@@ -62,20 +62,20 @@ In addition to using a fixed number of shards, we can further divide traffic flo
 
 ## Sequence numbering and SenderID
 
-The V2 frame format includes a sequence number field (`ShardSeqNum`) and a
+The V2 frame format includes a sequence number field (`SeqNum`) and a
 `SenderID` field for tracking the order of transactions within a shard per
 originating sender.
 
-**ShardSeqNum (bytes 40–47):** a per-sender monotonic counter assigned by the
+**SenderID (bytes 40–43):** a 4-byte CRC32c checksum of the source IPv6
+address, stamped in-place by the ingress proxy. IPv4 sources produce the
+IPv4-mapped form (`::ffff:a.b.c.d`) before hashing. This enables per-sender
+gap tracking at the receiver (`bitcoin-shard-listener`) without requiring any
+coordination at the proxy tier. `0` means unset.
+
+**SeqNum (bytes 48–51):** a per-sender monotonic counter assigned by the
 BSV sender. `0` means unset. Sequence numbering must be monotonic; coordination
 among proxy workers or between proxy nodes is not required because the proxy
 forwards the sender's value unchanged.
-
-**SenderID (bytes 80–95):** the original BSV sender's IP address, stamped
-in-place by the ingress proxy as a 16-byte `net.IP.To16()` value. IPv6 sources
-are stored natively; IPv4 sources produce the IPv4-mapped form
-(`::ffff:a.b.c.d`). This enables per-sender gap tracking at the receiver
-(`bitcoin-shard-listener`) without requiring any coordination at the proxy tier.
 
 Gap detection and retransmission requests (NACK) are the responsibility of the
 receiver (`bitcoin-shard-listener`), not the proxy.
@@ -94,10 +94,10 @@ See [bgp.md](bgp.md) for configuration details.
 
 ## Egress interface options
 
-| Mode          | When to use                                                          |
-|---------------|----------------------------------------------------------------------|
-| Plain ethernet| Ingress node is directly layer-2 adjacent to multicast fabric        |
-| GRE tunnel    | Ingress node connects to fabric over IP (cloud VM, remote colocation)|
+| Mode | When to use |
+|----------------|-----------------------------------------------------------------------|
+| Plain ethernet | Ingress node is directly layer-2 adjacent to multicast fabric |
+| GRE tunnel | Ingress node connects to fabric over IP (cloud VM, remote colocation) |
 
 See [networking.md](networking.md) for interface configuration.
 
@@ -119,7 +119,7 @@ internet ──BGP──► node-A ──GRE──┐
 
 ## OS support
 
-| OS           | Service manager | Network config          |
-|--------------|-----------------|-------------------------|
-| Ubuntu 24.04 | systemd         | Netplan / ip commands   |
-| FreeBSD 14   | rc.d            | rc.conf / ifconfig/gre  |
+| OS | Service manager | Network config |
+|--------------|-----------------|------------------------|
+| Ubuntu 24.04 | systemd | Netplan / ip commands |
+| FreeBSD 14 | rc.d | rc.conf / ifconfig/gre |

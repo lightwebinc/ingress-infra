@@ -69,65 +69,65 @@ All variables with defaults live in `group_vars/all.yml`.
 
 ### Proxy
 
-| Variable          | Default     | Description                                      |
-|-------------------|-------------|--------------------------------------------------|
-| `proxy_repo`      | (GitHub URL)| git URL of bitcoin-shard-proxy source            |
-| `proxy_version`   | `main`      | git ref (branch, tag, or SHA) to check out       |
-| `proxy_install_dir`| `/opt/bitcoin-shard-proxy` | Clone and build destination       |
-| `proxy_bin_dir`   | `/usr/local/bin` | Where to install the compiled binary         |
-| `listen_addr`     | `[::]`      | Bind address for incoming frames                 |
-| `udp_listen_port` | `9000`      | UDP ingress port                                 |
-| `tcp_listen_port` | `0`         | TCP ingress port for reliable delivery (0 = disabled) |
-| `egress_port`     | `9001`      | UDP egress port for multicast groups             |
-| `shard_bits`      | `8`         | Bit width of shard key (1–24)                    |
-| `mc_scope`        | `site`      | Multicast scope: link / site / org / global      |
-| `mc_base_addr`    | `""`        | Optional assigned IPv6 base address              |
-| `num_workers`     | `0`         | Worker count (0 = runtime.NumCPU)                |
-| `metrics_addr`    | `:9100`     | HTTP address for /metrics /healthz /readyz       |
-| `otlp_endpoint`   | `""`        | OTLP gRPC endpoint (empty = disabled)            |
-| `drain_timeout`   | `"0s"`      | Pre-drain delay before closing sockets on shutdown; set to `≥` LB health-check interval in production |
+| Variable | Default | Description |
+|---------------------|----------------------------|-------------------------------------------------------------------------------------------------------|
+| `proxy_repo` | (GitHub URL) | git URL of bitcoin-shard-proxy source |
+| `proxy_version` | `main` | git ref (branch, tag, or SHA) to check out |
+| `proxy_install_dir` | `/opt/bitcoin-shard-proxy` | Clone and build destination |
+| `proxy_bin_dir` | `/usr/local/bin` | Where to install the compiled binary |
+| `listen_addr` | `[::]` | Bind address for incoming frames |
+| `udp_listen_port` | `9000` | UDP ingress port |
+| `tcp_listen_port` | `0` | TCP ingress port for reliable delivery (0 = disabled) |
+| `egress_port` | `9001` | UDP egress port for multicast groups |
+| `shard_bits` | `8` | Bit width of shard key (1–24) |
+| `mc_scope` | `site` | Multicast scope: link / site / org / global |
+| `mc_base_addr` | `""` | Optional assigned IPv6 base address |
+| `num_workers` | `0` | Worker count (0 = runtime.NumCPU) |
+| `metrics_addr` | `:9100` | HTTP address for /metrics /healthz /readyz |
+| `otlp_endpoint` | `""` | OTLP gRPC endpoint (empty = disabled) |
+| `drain_timeout` | `"0s"` | Pre-drain delay before closing sockets on shutdown; set to `≥` LB health-check interval in production |
 
 > **`TimeoutStopSec` relationship:** `systemd` sends `SIGKILL` after `TimeoutStopSec` if the service has not exited. Ensure `TimeoutStopSec > drain_timeout + 15s` (OTLP flush + drain buffer). The default service unit sets `TimeoutStopSec=30`, which is sufficient for `drain_timeout ≤ 15s`.
 
 ### Networking
 
-| Variable          | Default      | Description                                     |
-|-------------------|--------------|-------------------------------------------------|
-| `egress_mode`     | `ethernet`   | `ethernet` or `gre`                             |
-| `egress_iface`    | `eth1`       | Interface name(s) — list or comma string        |
-| `gre_local_ip6`   | `""`         | Local IPv6 address for the GRE tunnel (gre mode only) |
-| `gre_remote_ip6`  | `""`         | Remote IPv6 GRE endpoint address                |
-| `gre_iface`       | `gre6-bsp`   | GRE tunnel interface name                       |
-| `gre_inner_ipv6`  | `""`         | IPv6 address/prefix for the GRE interface       |
+| Variable | Default | Description |
+|------------------|------------|-------------------------------------------------------|
+| `egress_mode` | `ethernet` | `ethernet` or `gre` |
+| `egress_iface` | `eth1` | Interface name(s) — list or comma string |
+| `gre_local_ip6` | `""` | Local IPv6 address for the GRE tunnel (gre mode only) |
+| `gre_remote_ip6` | `""` | Remote IPv6 GRE endpoint address |
+| `gre_iface` | `gre6-bsp` | GRE tunnel interface name |
+| `gre_inner_ipv6` | `""` | IPv6 address/prefix for the GRE interface |
 
 ### BGP
 
-| Variable          | Default      | Description                                     |
-|-------------------|--------------|-------------------------------------------------|
-| `enable_bgp`      | `false`      | Enable eBGP                                     |
-| `bgp_daemon`      | `bird2`      | `bird2` or `frr`                                |
-| `bgp_prefix`      | `[]`          | IPv4 BGP prefixes announced by all nodes (list) |
-| `bgp_vip`         | `""`         | IPv4 loopback BGP VIP                           |
-| `bgp_prefix6`     | `[]`          | IPv6 BGP prefixes announced by all nodes (list) |
-| `bgp_vip6`        | `""`         | IPv6 loopback BGP VIP                           |
-| `bgp_local_as`    | `65001`      | Local ASN                                       |
-| `bgp_peer_as`     | `65000`      | Upstream provider ASN                           |
-| `bgp_peer_ip`     | `""`         | Upstream BGP peer IP                            |
-| `bgp_router_id`   | `""`         | BGP router ID (defaults to primary IPv4)        |
-| `bgp_hold_time`   | `90`         | BGP hold time (seconds)                         |
-| `bgp_keepalive`   | `30`         | BGP keepalive interval (seconds)                |
-| `bgp_password`    | `""`         | Optional MD5 session password                   |
+| Variable | Default | Description |
+|-----------------|---------|-------------------------------------------------|
+| `enable_bgp` | `false` | Enable eBGP |
+| `bgp_daemon` | `bird2` | `bird2` or `frr` |
+| `bgp_prefix` | `[]` | IPv4 BGP prefixes announced by all nodes (list) |
+| `bgp_vip` | `""` | IPv4 loopback BGP VIP |
+| `bgp_prefix6` | `[]` | IPv6 BGP prefixes announced by all nodes (list) |
+| `bgp_vip6` | `""` | IPv6 loopback BGP VIP |
+| `bgp_local_as` | `65001` | Local ASN |
+| `bgp_peer_as` | `65000` | Upstream provider ASN |
+| `bgp_peer_ip` | `""` | Upstream BGP peer IP |
+| `bgp_router_id` | `""` | BGP router ID (defaults to primary IPv4) |
+| `bgp_hold_time` | `90` | BGP hold time (seconds) |
+| `bgp_keepalive` | `30` | BGP keepalive interval (seconds) |
+| `bgp_password` | `""` | Optional MD5 session password |
 
 ---
 
 ## Roles
 
-| Role                    | Purpose                                                  |
-|-------------------------|----------------------------------------------------------|
-| `common`                | OS packages, Go toolchain install, build dependencies    |
-| `bitcoin-shard-proxy`   | Clone, build, install binary, configure service unit     |
-| `networking`            | Ethernet or GRE egress interface, IPv6 multicast routing |
-| `bgp`                   | BIRD2 or FRR install, config template, health-check timer|
+| Role | Purpose |
+|-----------------------|-----------------------------------------------------------|
+| `common` | OS packages, Go toolchain install, build dependencies |
+| `bitcoin-shard-proxy` | Clone, build, install binary, configure service unit |
+| `networking` | Ethernet or GRE egress interface, IPv6 multicast routing |
+| `bgp` | BIRD2 or FRR install, config template, health-check timer |
 
 Roles are applied in the order listed by `site.yml`. The `bgp` role is skipped when `enable_bgp: false`.
 

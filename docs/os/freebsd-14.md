@@ -9,16 +9,16 @@
 
 ## What the Ansible roles install
 
-| Package / component   | Source            | Notes                                      |
-|-----------------------|-------------------|--------------------------------------------|
-| `gmake`               | pkg               | GNU make for Go build                      |
-| `git`                 | pkg               | clone bitcoin-shard-proxy                  |
-| `curl`                | pkg               | health-check script                        |
-| `bash`                | pkg               | required by some build scripts             |
-| Go toolchain          | go.dev tarball    | version set by `go_version` variable       |
-| `bitcoin-shard-proxy` | built from source | binary in `/usr/local/bin/`                |
-| `bird2`               | pkg (if BGP)      | BIRD2 BGP daemon                           |
-| `frr`                 | pkg (if BGP)      | FRRouting BGP daemon (alternative to BIRD2)|
+| Package / component | Source | Notes |
+|-----------------------|-------------------|---------------------------------------------|
+| `gmake` | pkg | GNU make for Go build |
+| `git` | pkg | clone bitcoin-shard-proxy |
+| `curl` | pkg | health-check script |
+| `bash` | pkg | required by some build scripts |
+| Go toolchain | go.dev tarball | version set by `go_version` variable |
+| `bitcoin-shard-proxy` | built from source | binary in `/usr/local/bin/` |
+| `bird2` | pkg (if BGP) | BIRD2 BGP daemon |
+| `frr` | pkg (if BGP) | FRRouting BGP daemon (alternative to BIRD2) |
 
 ## Service management
 
@@ -83,23 +83,23 @@ sudo vtysh -c 'show bgp ipv6 summary'
 The Ansible `common` role does not manage `pf` rules — add rules for your site policy. Ports that
 must be reachable:
 
-| Port | Protocol | Direction | Purpose                                |
-|------|----------|-----------|----------------------------------------|
-| 9000 | UDP      | inbound   | bitcoin-shard-proxy ingress            |
-| 179  | TCP      | in+out    | BGP (if `enable_bgp: true`)            |
-| 9100 | TCP      | inbound   | Prometheus metrics / health endpoints  |
+| Port | Protocol | Direction | Purpose |
+|------|----------|-----------|---------------------------------------|
+| 9000 | UDP | inbound | bitcoin-shard-proxy ingress |
+| 179 | TCP | in+out | BGP (if `enable_bgp: true`) |
+| 9100 | TCP | inbound | Prometheus metrics / health endpoints |
 
 ## File locations
 
-| Path                                           | Content                         |
-|------------------------------------------------|---------------------------------|
-| `/usr/local/bin/bitcoin-shard-proxy`           | Compiled binary                 |
-| `/usr/local/etc/bitcoin-shard-proxy.conf`      | Environment variable config     |
-| `/usr/local/etc/rc.d/bitcoin_shard_proxy`      | rc.d service script             |
-| `/usr/local/bitcoin-shard-proxy/`              | Source clone and build directory|
-| `/usr/local/etc/bird/bird.conf`                | BIRD2 config (if enabled)       |
-| `/usr/local/etc/frr/frr.conf`                  | FRR config (if enabled)         |
-| `/etc/rc.conf`                                 | Interface and service settings  |
+| Path | Content |
+|-------------------------------------------|----------------------------------|
+| `/usr/local/bin/bitcoin-shard-proxy` | Compiled binary |
+| `/usr/local/etc/bitcoin-shard-proxy.conf` | Environment variable config |
+| `/usr/local/etc/rc.d/bitcoin_shard_proxy` | rc.d service script |
+| `/usr/local/bitcoin-shard-proxy/` | Source clone and build directory |
+| `/usr/local/etc/bird/bird.conf` | BIRD2 config (if enabled) |
+| `/usr/local/etc/frr/frr.conf` | FRR config (if enabled) |
+| `/etc/rc.conf` | Interface and service settings |
 
 ## Notes
 

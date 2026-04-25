@@ -9,14 +9,14 @@
 
 ## What the Ansible roles install
 
-| Package / component     | Source              | Notes                                      |
-|-------------------------|---------------------|--------------------------------------------|
-| `build-essential`       | apt                 | gcc, make, etc. for Go CGO                 |
-| `git`                   | apt                 | clone bitcoin-shard-proxy                  |
-| `curl`                  | apt                 | health-check script                        |
-| Go toolchain            | go.dev tarball      | version set by `go_version` variable       |
-| `bitcoin-shard-proxy`   | built from source   | binary in `/usr/local/bin/`                |
-| `bird2` or `frr`        | apt (if BGP enabled)| BGP daemon                                 |
+| Package / component | Source | Notes |
+|-----------------------|----------------------|--------------------------------------|
+| `build-essential` | apt | gcc, make, etc. for Go CGO |
+| `git` | apt | clone bitcoin-shard-proxy |
+| `curl` | apt | health-check script |
+| Go toolchain | go.dev tarball | version set by `go_version` variable |
+| `bitcoin-shard-proxy` | built from source | binary in `/usr/local/bin/` |
+| `bird2` or `frr` | apt (if BGP enabled) | BGP daemon |
 
 ## Service management
 
@@ -68,21 +68,21 @@ sudo vtysh -c 'show ip bgp'
 The Ansible `common` role does not manage `ufw` rules — add rules for your site policy. Ports that
 must be reachable:
 
-| Port  | Protocol | Direction | Purpose                                |
-|-------|----------|-----------|----------------------------------------|
-| 9000  | UDP      | inbound   | bitcoin-shard-proxy ingress            |
-| 179   | TCP      | in+out    | BGP (if `enable_bgp: true`)            |
-| 9100  | TCP      | inbound   | Prometheus metrics / health endpoints  |
+| Port | Protocol | Direction | Purpose |
+|------|----------|-----------|---------------------------------------|
+| 9000 | UDP | inbound | bitcoin-shard-proxy ingress |
+| 179 | TCP | in+out | BGP (if `enable_bgp: true`) |
+| 9100 | TCP | inbound | Prometheus metrics / health endpoints |
 
 ## File locations
 
-| Path                                        | Content                          |
-|---------------------------------------------|----------------------------------|
-| `/usr/local/bin/bitcoin-shard-proxy`        | Compiled binary                  |
-| `/etc/bitcoin-shard-proxy/config.env`       | Environment variable config file |
-| `/etc/systemd/system/bitcoin-shard-proxy.service` | systemd unit              |
-| `/opt/bitcoin-shard-proxy/`                 | Source clone and build directory |
-| `/etc/bird/bird.conf`                       | BIRD2 config (if enabled)        |
-| `/etc/frr/frr.conf`                         | FRR config (if enabled)          |
-| `/etc/netplan/60-bitcoin-ingress.yaml`      | Egress interface netplan         |
-| `/etc/sysctl.d/60-bitcoin-ingress.conf`     | IPv6 sysctl settings             |
+| Path | Content |
+|---------------------------------------------------|----------------------------------|
+| `/usr/local/bin/bitcoin-shard-proxy` | Compiled binary |
+| `/etc/bitcoin-shard-proxy/config.env` | Environment variable config file |
+| `/etc/systemd/system/bitcoin-shard-proxy.service` | systemd unit |
+| `/opt/bitcoin-shard-proxy/` | Source clone and build directory |
+| `/etc/bird/bird.conf` | BIRD2 config (if enabled) |
+| `/etc/frr/frr.conf` | FRR config (if enabled) |
+| `/etc/netplan/60-bitcoin-ingress.yaml` | Egress interface netplan |
+| `/etc/sysctl.d/60-bitcoin-ingress.conf` | IPv6 sysctl settings |

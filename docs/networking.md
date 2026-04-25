@@ -5,10 +5,10 @@
 `bitcoin-shard-proxy` sends IPv6 UDP multicast datagrams out of one or more named network interfaces.
 The `networking` Ansible role configures the egress interface in one of two modes:
 
-| Mode          | Variable                  | Description                                           |
-|---------------|---------------------------|-------------------------------------------------------|
-| Plain ethernet| `egress_mode: ethernet`   | Use an existing physical/VLAN interface as-is         |
-| GRE tunnel    | `egress_mode: gre`        | Create a GRE tunnel to a remote fabric endpoint       |
+| Mode | Variable | Description |
+|----------------|-------------------------|-------------------------------------------------|
+| Plain ethernet | `egress_mode: ethernet` | Use an existing physical/VLAN interface as-is |
+| GRE tunnel | `egress_mode: gre` | Create a GRE tunnel to a remote fabric endpoint |
 
 Set `egress_mode` in `ansible/group_vars/all.yml` or per-host in the inventory.
 
@@ -111,10 +111,10 @@ The route prefix is derived automatically from `mc_scope`:
 
 | `mc_scope` | Derived `mc_route_prefix` |
 |------------|---------------------------|
-| `link`     | `ff02::/16`               |
-| `site`     | `ff05::/16`               |
-| `org`      | `ff08::/16`               |
-| `global`   | `ff0e::/16`               |
+| `link` | `ff02::/16` |
+| `site` | `ff05::/16` |
+| `org` | `ff08::/16` |
+| `global` | `ff0e::/16` |
 
 To override (e.g. when `mc_base_addr` narrows the address space further):
 

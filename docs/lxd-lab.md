@@ -114,7 +114,7 @@ lxc exec recv1 -- tcpdump -i enp6s0 -n 'ip6 and udp' -c 8
 ## Known issues and fixes
 
 | Issue | Fix |
-|-------|-----|
+|--------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
 | `git clone` "dubious ownership" error | `community.general.git_config` sets `safe.directory` globally before `ansible.builtin.git` runs |
 | `go build` VCS stamping error | `-buildvcs=false` added to build command |
 | `ExecStartPre` shell redirection fails | Command wrapped in `/bin/sh -c '...'` in systemd unit template |

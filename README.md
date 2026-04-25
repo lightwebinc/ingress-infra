@@ -44,12 +44,12 @@ See [docs/architecture.md](docs/architecture.md) for full topology detail.
 
 ## Supported platforms
 
-| OS            | Automation  | Notes                                  |
-|---------------|-------------|----------------------------------------|
-| Ubuntu 24.04  | Ansible     | systemd service unit                   |
-| FreeBSD 14    | Ansible     | rc.d service script                    |
-| Any SSH host  | Terraform   | cloud-agnostic null_resource module    |
-| AWS EC2       | Terraform   | VPC / SG / EC2 / optional EIP          |
+| OS | Automation | Notes |
+|--------------|------------|-------------------------------------|
+| Ubuntu 24.04 | Ansible | systemd service unit |
+| FreeBSD 14 | Ansible | rc.d service script |
+| Any SSH host | Terraform | cloud-agnostic null_resource module |
+| AWS EC2 | Terraform | VPC / SG / EC2 / optional EIP |
 
 ## Quick start
 

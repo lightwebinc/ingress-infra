@@ -152,10 +152,10 @@ Installed on Ubuntu 24.04 (`apt install frr`) and FreeBSD 14 (`pkg install frr`)
 
 Config paths differ by OS:
 
-| OS           | Config directory      | Daemon selection                                              |
+| OS | Config directory | Daemon selection |
 |--------------|-----------------------|---------------------------------------------------------------|
-| Ubuntu 24.04 | `/etc/frr/`           | `/etc/frr/daemons` file                                       |
-| FreeBSD 14   | `/usr/local/etc/frr/` | `frr_enable`, `zebra_enable`, `bgpd_enable` in `/etc/rc.conf` |
+| Ubuntu 24.04 | `/etc/frr/` | `/etc/frr/daemons` file |
+| FreeBSD 14 | `/usr/local/etc/frr/` | `frr_enable`, `zebra_enable`, `bgpd_enable` in `/etc/rc.conf` |
 
 The `bgp` role writes `frr.conf` to the appropriate path and handles daemon selection per OS.
 
@@ -342,7 +342,7 @@ added as a separate `bgp-ebgp` role at that time.
 ## Playbooks
 
 | Playbook | Target group | Role | Purpose |
-|---|---|---|---|
+|------------------------|------------------|---------------------|-----------------------------|
 | `ansible/site.yml` | `ingress_nodes` | `bgp` (conditional) | eBGP on ingress proxy nodes |
 | `ansible/bgp-ibgp.yml` | `bgp_ibgp_nodes` | `bgp-ibgp` | iBGP on upstream peer nodes |
 
@@ -386,15 +386,15 @@ ifconfig_lo0_alias1="inet6 {{ bgp_vip6 }} prefixlen 128"          # IPv6 VIP
 
 ## Choosing a daemon
 
-| Feature                    | BIRD2              | FRR                    |
-|----------------------------|--------------------|------------------------|
-| Ubuntu 24.04               | Yes                | Yes                    |
-| FreeBSD 14                 | Yes                | Yes                    |
-| Dual-stack (IPv4 + IPv6)   | Yes                | Yes                    |
-| BFD support                | Yes                | Yes                    |
-| Filter language            | BIRD filter lang   | Cisco-like CLI (vtysh) |
-| PIM/PIM6 support           | No                 | Yes                    |
-| MLD support                | No                 | Yes                    |
+| Feature | BIRD2 | FRR |
+|--------------------------|------------------|------------------------|
+| Ubuntu 24.04 | Yes | Yes |
+| FreeBSD 14 | Yes | Yes |
+| Dual-stack (IPv4 + IPv6) | Yes | Yes |
+| BFD support | Yes | Yes |
+| Filter language | BIRD filter lang | Cisco-like CLI (vtysh) |
+| PIM/PIM6 support | No | Yes |
+| MLD support | No | Yes |
 
 Both daemons support most features on both OSes. Choose based on operational preference:
 
