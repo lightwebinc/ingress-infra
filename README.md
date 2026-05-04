@@ -19,7 +19,7 @@ and run hands-off.
 
 ```text
 Internet / BSV senders
-        │  UDP / TCP (BRC-12/V2 frames)
+        │  UDP / TCP (BRC-124/v2 or legacy BRC-12/v1 frames)
         ▼
 ┌──────────────────────┐
 │  bitcoin-ingress     │  ← this repo manages deployment of these nodes

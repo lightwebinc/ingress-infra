@@ -5,7 +5,7 @@
 `bitcoin-ingress` deploys and configures `bitcoin-shard-proxy` nodes that form the ingress tier of a
 Bitcoin SV multicast distribution fabric. Each node:
 
-1. Receives raw BRC-12 transaction frames from BSV senders on the public internet (UDP by default; TCP ingress is optional for reliable delivery).
+1. Receives BSV transaction frames (BRC-124/v2 or legacy BRC-12/v1) from senders on the public internet (UDP by default; TCP ingress is optional for reliable delivery).
 2. Derives an IPv6 multicast group address from the transaction ID shard key.
 3. Retransmits the datagram to the derived group over one or more egress interfaces connected to the
    multicast fabric.
@@ -20,7 +20,7 @@ and individually replaceable.
                         ┌─────────────────────────────────────────┐
                         │  BSV Senders (miners, services)         │
                         └────────────┬────────────────────────────┘
-                                     │  UDP / TCP (BRC-12 / V2 frames)
+                                     │  UDP / TCP (BRC-124/v2 or legacy BRC-12/v1 frames)
                     ┌────────────────┼────────────────┐
                     │                │                │
               ┌─────▼──┐       ┌─────▼──┐       ┌─────▼──┐
