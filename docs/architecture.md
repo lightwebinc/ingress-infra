@@ -66,14 +66,16 @@ The BRC-124 (v2) frame format includes two 8-byte fields — `PrevSeq` (bytes
 40–47) and `CurSeq` (bytes 48–55) — forming an XXH64 hash chain per
 `(senderIPv6, groupIdx)`.
 
-**CurSeq:** Computed by the proxy as `XXH64(senderIPv6 ∥ groupIdx ∥ counter)`
-and stamped in-place before forwarding. The counter is a per-(sender, group)
-monotonic uint64 maintained by the proxy's forwarder. `0` means unset (first
-frame in a chain).
+**CurSeq:** Set either by the sender before transmission, or stamped in-place by
+the proxy if the field is zero. When the proxy stamps it:
+`CurSeq = XXH64(senderIPv6 ∥ groupIdx ∥ counter)` using a per-(sender, group)
+monotonic counter. If the sender has pre-set a non-zero `CurSeq`, the proxy
+forwards verbatim without modification.
 
 **PrevSeq:** The `CurSeq` of the immediately preceding frame in the same
-sender+group chain. Stamped by the proxy. A mismatch between a received frame's
-`PrevSeq` and the listener's `lastCurSeq` indicates one or more missing frames.
+sender+group chain. Set by the sender or stamped by the proxy alongside `CurSeq`.
+A mismatch between a received frame's `PrevSeq` and the listener's `lastCurSeq`
+indicates one or more missing frames.
 
 Gap detection and retransmission requests (NACK) are the responsibility of the
 receiver (`bitcoin-shard-listener`), not the proxy.
