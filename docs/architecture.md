@@ -60,22 +60,20 @@ by 1 splits each existing group into two children — existing joins remain vali
 
 In addition to using a fixed number of shards, we can further divide traffic flows into subtree-flows using subtree identifiers set by miners and transaction processors. This allows for more flexible sharding and can be used to shard by transaction type, specialty, or other criteria. The details of this mechanism are still being worked out, particularly the deterministic mapping of the 32 byte subtree identifier to multicast group address scheme. The V2 frame format includes a field for the subtree ID already.
 
-## Sequence numbering and SenderID
+## PrevSeq / CurSeq hash chain
 
-The V2 frame format includes a sequence number field (`SeqNum`) and a
-`SenderID` field for tracking the order of transactions within a shard per
-originating sender.
+The BRC-124 (v2) frame format includes two 8-byte fields — `PrevSeq` (bytes
+40–47) and `CurSeq` (bytes 48–55) — forming an XXH64 hash chain per
+`(senderIPv6, groupIdx)`.
 
-**SenderID (bytes 40–43):** a 4-byte CRC32c checksum of the source IPv6
-address, stamped in-place by the ingress proxy. IPv4 sources produce the
-IPv4-mapped form (`::ffff:a.b.c.d`) before hashing. This enables per-sender
-gap tracking at the receiver (`bitcoin-shard-listener`) without requiring any
-coordination at the proxy tier. `0` means unset.
+**CurSeq:** Computed by the proxy as `XXH64(senderIPv6 ∥ groupIdx ∥ counter)`
+and stamped in-place before forwarding. The counter is a per-(sender, group)
+monotonic uint64 maintained by the proxy's forwarder. `0` means unset (first
+frame in a chain).
 
-**SeqNum (bytes 48–51):** a per-sender monotonic counter assigned by the
-BSV sender. `0` means unset. Sequence numbering must be monotonic; coordination
-among proxy workers or between proxy nodes is not required because the proxy
-forwards the sender's value unchanged.
+**PrevSeq:** The `CurSeq` of the immediately preceding frame in the same
+sender+group chain. Stamped by the proxy. A mismatch between a received frame's
+`PrevSeq` and the listener's `lastCurSeq` indicates one or more missing frames.
 
 Gap detection and retransmission requests (NACK) are the responsibility of the
 receiver (`bitcoin-shard-listener`), not the proxy.
