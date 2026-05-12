@@ -5,7 +5,7 @@
 `bitcoin-ingress` deploys and configures `bitcoin-shard-proxy` nodes that form the ingress tier of a
 Bitcoin SV multicast distribution fabric. Each node:
 
-1. Receives BSV transaction frames (BRC-124/v2 or legacy BRC-12/v1) from senders on the public internet (UDP by default; TCP ingress is optional for reliable delivery).
+1. Receives BSV transaction frames (BRC-124/BRC-128 or legacy BRC-12) from senders on the public internet (UDP by default; TCP ingress is optional for reliable delivery).
 2. Derives an IPv6 multicast group address from the transaction ID shard key.
 3. Retransmits the datagram to the derived group over one or more egress interfaces connected to the
    multicast fabric.
@@ -20,7 +20,7 @@ and individually replaceable.
                         ┌─────────────────────────────────────────┐
                         │  BSV Senders (miners, services)         │
                         └────────────┬────────────────────────────┘
-                                     │  UDP / TCP (BRC-124/v2 or legacy BRC-12/v1 frames)
+                                     │  UDP / TCP (BRC-124/BRC-128 or legacy BRC-12 frames)
                     ┌────────────────┼────────────────┐
                     │                │                │
               ┌─────▼──┐       ┌─────▼──┐       ┌─────▼──┐
@@ -46,39 +46,14 @@ and individually replaceable.
                                               └───────────────────┘
 ```
 
-## Shard key and multicast group derivation
+## Protocol details
 
-The proxy reads the top N bits of the transaction ID (configured via `shard_bits`) and maps them to
-one of 2ᴺ IPv6 multicast group addresses. See the
-[bitcoin-shard-proxy README](https://github.com/lightwebinc/bitcoin-shard-proxy) for the full
-derivation formula and address format.
+Frame formats, shard derivation, subtree filtering, and PrevSeq/CurSeq hash chain
+stamping are documented in the service and project repos:
 
-Subscribers join only the groups covering the shard ranges they care about. Increasing `shard_bits`
-by 1 splits each existing group into two children — existing joins remain valid.
-
-## Subtree-based sharding
-
-In addition to using a fixed number of shards, we can further divide traffic flows into subtree-flows using subtree identifiers set by miners and transaction processors. This allows for more flexible sharding and can be used to shard by transaction type, specialty, or other criteria. The details of this mechanism are still being worked out, particularly the deterministic mapping of the 32 byte subtree identifier to multicast group address scheme. The V2 frame format includes a field for the subtree ID already.
-
-## PrevSeq / CurSeq hash chain
-
-The BRC-124 (v2) frame format includes two 8-byte fields — `PrevSeq` (bytes
-40–47) and `CurSeq` (bytes 48–55) — forming an XXH64 hash chain per
-`(senderIPv6, groupIdx)`.
-
-**CurSeq:** Set either by the sender before transmission, or stamped in-place by
-the proxy if the field is zero. When the proxy stamps it:
-`CurSeq = XXH64(senderIPv6 ∥ groupIdx ∥ counter)` using a per-(sender, group)
-monotonic counter. If the sender has pre-set a non-zero `CurSeq`, the proxy
-forwards verbatim without modification.
-
-**PrevSeq:** The `CurSeq` of the immediately preceding frame in the same
-sender+group chain. Set by the sender or stamped by the proxy alongside `CurSeq`.
-A mismatch between a received frame's `PrevSeq` and the listener's `lastCurSeq`
-indicates one or more missing frames.
-
-Gap detection and retransmission requests (NACK) are the responsibility of the
-receiver (`bitcoin-shard-listener`), not the proxy.
+- [bitcoin-shard-proxy — Architecture](https://github.com/lightwebinc/bitcoin-shard-proxy/blob/main/docs/architecture.md)
+- [Wire Protocol Specification](https://github.com/lightwebinc/bitcoin-shard-common/blob/main/docs/protocol.md)
+- [bitcoin-multicast — DESIGN.md](https://github.com/lightwebinc/bitcoin-multicast/blob/main/DESIGN.md)
 
 ## BGP ingress (optional)
 

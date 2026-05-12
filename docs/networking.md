@@ -171,7 +171,7 @@ The role joins the list into a comma-separated string and passes it to the `-ifa
 
 ## Ingress interface
 
-The ingress (sender-facing) interface is where `bitcoin-shard-proxy` listens for BRC-124/v2 (or legacy BRC-12/v1) frames.
+The ingress (sender-facing) interface is where `bitcoin-shard-proxy` listens for BRC-124/BRC-128 (or legacy BRC-12) frames.
 This is typically the default route interface and requires no special configuration beyond reachability
 from senders.
 
