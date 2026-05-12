@@ -1,79 +1,54 @@
 # bitcoin-ingress
 
-Automation tooling for deploying [bitcoin-shard-proxy](https://github.com/lightwebinc/bitcoin-shard-proxy) as
-a horizontally-distributed, stateless Bitcoin ingress proxy fleet — packaged into OS installations, networked,
-and run hands-off.
+[![Lint](https://github.com/lightwebinc/bitcoin-ingress/actions/workflows/lint.yml/badge.svg)](https://github.com/lightwebinc/bitcoin-ingress/actions/workflows/lint.yml)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 
-## Goals
-
-- **Diversified data injection**: deploy ingress proxies across geographically distributed nodes so Bitcoin
-  transaction data enters the multicast fabric from many independent points.
-- **Multicast fabric integration**: connect ingress proxy pools to the IPv6 multicast network fabric serving
-  Bitcoin miners, exchanges, and other service providers as tiered multicast group subscribers.
-- **Stateless & deterministic**: because `bitcoin-shard-proxy` carries no state, proxies can be added,
-  removed, or replaced at any time without coordination.
-- **Horizontal scale**: shard-bit doubling splits multicast groups without invalidating existing subscriber
-  joins — scale up by deploying more nodes, not by reconfiguring existing ones.
-
-## Architecture overview
+Ansible and Terraform automation for deploying
+[`bitcoin-shard-proxy`](https://github.com/lightwebinc/bitcoin-shard-proxy)
+nodes — the stateless ingress tier of the BSV multicast pipeline.
 
 ```text
-Internet / BSV senders
-        │  UDP / TCP (BRC-124/v2 or legacy BRC-12/v1 frames)
-        ▼
-┌──────────────────────┐
-│  bitcoin-ingress     │  ← this repo manages deployment of these nodes
-│  proxy node          │
-│  (bitcoin-shard-proxy│
-│   binary)            │
-└──────┬───────────────┘
-       │  IPv6 UDP multicast (FF05::<shard>)
-       │  via ethernet or GRE tunnel egress
-       ▼
-┌──────────────────────────────────────────────┐
-│  Multicast fabric                            │
-│  (miners, exchanges, service providers)      │
-│  — subscribe to shard groups of interest —   │
-└──────────────────────────────────────────────┘
+BSV senders ──UDP/TCP──▶  bitcoin-shard-proxy  ──multicast──▶  FF05::<shard>:9001
+                          (this repo deploys)                   (subscriber fabric)
 ```
 
-Optional eBGP on the ingress interface advertises shared prefixes from all proxy nodes,
-allowing senders to reach the nearest proxy automatically.
+## Supported Platforms
 
-See [docs/architecture.md](docs/architecture.md) for full topology detail.
+| OS           | Automation | Service Manager |
+| ------------ | ---------- | --------------- |
+| Ubuntu 24.04 | Ansible    | systemd         |
+| FreeBSD 14   | Ansible    | rc.d            |
+| AWS EC2      | Terraform  | systemd         |
+| Any SSH host | Terraform  | generic         |
 
-## Supported platforms
+## Quick Start
 
-| OS | Automation | Notes |
-|--------------|------------|-------------------------------------|
-| Ubuntu 24.04 | Ansible | systemd service unit |
-| FreeBSD 14 | Ansible | rc.d service script |
-| Any SSH host | Terraform | cloud-agnostic null_resource module |
-| AWS EC2 | Terraform | VPC / SG / EC2 / optional EIP |
+```sh
+cd ansible
+ansible-galaxy collection install -r requirements.yml
+cp inventory/hosts.example.yml inventory/hosts.yml
+$EDITOR inventory/hosts.yml
+ansible-playbook -i inventory/hosts.yml site.yml
+```
 
-## Quick start
+## Documentation
 
-1. **Ansible** — see [docs/ansible.md](docs/ansible.md)
-2. **Terraform (generic)** — see [docs/terraform.md](docs/terraform.md)
-3. **Networking (GRE / ethernet)** — see [docs/networking.md](docs/networking.md)
-4. **eBGP** — see [docs/bgp.md](docs/bgp.md)
-5. **LXD / local lab** — see [docs/lxd-lab.md](docs/lxd-lab.md)
+- [Architecture](docs/architecture.md)
+- [Ansible usage](docs/ansible.md)
+- [Networking (GRE / ethernet)](docs/networking.md)
+- [BGP](docs/bgp.md)
+- [Terraform](docs/terraform.md)
+- [LXD lab](docs/lxd-lab.md)
+- OS notes: [Ubuntu 24.04](docs/os/ubuntu-24.04.md), [FreeBSD 14](docs/os/freebsd-14.md)
 
-## Repository layout
+## Repository Layout
 
 ```text
-ansible/          Ansible roles and playbooks
-terraform/        Terraform modules and cloud examples
-docs/             Per-topic documentation
-.github/          CI lint workflows
+ansible/     Roles and playbooks
+terraform/   Modules and cloud examples
+docs/        Per-topic documentation
 ```
-
-## References
-
-- [bitcoin-shard-proxy](https://github.com/lightwebinc/bitcoin-shard-proxy) — the proxy this repo deploys
-- [Multicast within Multicast: AnyCast](https://singulargrit.substack.com/p/multicast-within-multicast-anycast)
-- [Multicast as the Only Viable Architecture](https://singulargrit.substack.com/p/multicast-as-the-only-viable-architecture)
 
 ## License
 
-Apache 2.0
+Apache 2.0 — see [LICENSE](LICENSE).
