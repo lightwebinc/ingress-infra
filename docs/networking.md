@@ -116,7 +116,7 @@ The route prefix is derived automatically from `mc_scope`:
 | `org` | `ff08::/16` |
 | `global` | `ff0e::/16` |
 
-To override (e.g. when `mc_base_addr` narrows the address space further):
+To override (e.g. when `mc_group_id` narrows the address space further):
 
 ```yaml
 mc_route_prefix: "ff05:0:0:1234::/64"   # explicit prefix, skips auto-derivation

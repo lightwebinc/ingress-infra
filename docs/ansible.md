@@ -79,9 +79,9 @@ All variables with defaults live in `group_vars/all.yml`.
 | `udp_listen_port` | `9000` | UDP ingress port |
 | `tcp_listen_port` | `0` | TCP ingress port for reliable delivery (0 = disabled) |
 | `egress_port` | `9001` | UDP egress port for multicast groups |
-| `shard_bits` | `8` | Bit width of shard key (1–24) |
+| `shard_bits` | `8` | Bit width of shard key (1–15) |
 | `mc_scope` | `site` | Multicast scope: link / site / org / global |
-| `mc_base_addr` | `""` | Optional assigned IPv6 base address |
+| `mc_group_id` | `"0x000B"` | IANA group-id (bytes 12–13); default = IANA Bitcoin allocation `FF0X::B` |
 | `num_workers` | `0` | Worker count (0 = runtime.NumCPU) |
 | `metrics_addr` | `:9100` | HTTP address for /metrics /healthz /readyz |
 | `otlp_endpoint` | `""` | OTLP gRPC endpoint (empty = disabled) |

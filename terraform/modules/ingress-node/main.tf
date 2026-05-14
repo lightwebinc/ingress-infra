@@ -25,7 +25,7 @@ locals {
       egress_port     = tostring(var.egress_port)
       shard_bits      = tostring(var.shard_bits)
       mc_scope        = var.mc_scope
-      mc_base_addr    = var.mc_base_addr
+      mc_group_id    = var.mc_group_id
       mc_route_prefix = var.mc_route_prefix
       metrics_addr    = var.metrics_addr
       egress_mode     = var.egress_mode
