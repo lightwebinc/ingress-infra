@@ -8,14 +8,14 @@
 # bitcoin-shard-proxy source and build
 # ------------------------------------------------------------
 proxy_repo: "https://github.com/lightwebinc/bitcoin-shard-proxy.git"
-proxy_version: "feat/v2-frame-sequencing"
+proxy_version: "main"
 proxy_install_dir: "/opt/bitcoin-shard-proxy"
 proxy_bin_dir: "/usr/local/bin"
 proxy_user: "bitcoin-proxy"
 proxy_group: "bitcoin-proxy"
 
 # Go toolchain version (used when building from source)
-go_version: "1.24.5"
+go_version: "1.25.10"
 go_install_dir: "/usr/local/go"
 
 # ------------------------------------------------------------
@@ -34,6 +34,7 @@ metrics_addr: ":9100"
 otlp_endpoint: ""
 otlp_interval: "30s"
 drain_timeout: "0s"           # Pre-drain delay on shutdown; set to ≥ LB health-check interval in production
+frag_mtu: 0                   # BRC-130 fragmentation MTU (0 = disabled)
 proxy_debug: false
 
 # ------------------------------------------------------------

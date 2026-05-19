@@ -10,27 +10,134 @@ variable "ansible_playbook_path" {
   default     = ""
 }
 
-variable "host_ip" {
-  description = "Public IP address of the target host"
+variable "bgp_daemon" {
+  description = "BGP daemon to use: bird2 or frr"
   type        = string
+  default     = "bird2"
+
+  validation {
+    condition     = contains(["bird2", "frr"], var.bgp_daemon)
+    error_message = "bgp_daemon must be 'bird2' or 'frr'."
+  }
 }
 
-variable "ssh_private_key_path" {
-  description = "Path to the SSH private key file"
-  type        = string
+variable "bgp_local_as" {
+  description = "Local BGP ASN"
+  type        = number
+  default     = 65001
 }
 
-variable "ssh_user" {
-  description = "SSH username for the target host"
+variable "bgp_password" {
+  description = "Optional MD5 BGP session password"
   type        = string
-  default     = "ubuntu"
+  default     = ""
+  sensitive   = true
 }
 
-# Proxy configuration
+variable "bgp_peer_as" {
+  description = "Upstream provider BGP ASN"
+  type        = number
+  default     = 65000
+}
+
+variable "bgp_peer_ip" {
+  description = "Upstream BGP peer IPv4 address (leave empty for IPv6-only peer)"
+  type        = string
+  default     = ""
+}
+
+variable "bgp_peer_ip6" {
+  description = "Upstream BGP peer IPv6 address"
+  type        = string
+  default     = ""
+}
+
+variable "bgp_prefix" {
+  description = "IPv4 BGP prefixes announced by all nodes"
+  type        = list(string)
+  default     = []
+}
+
+variable "bgp_prefix6" {
+  description = "IPv6 BGP prefixes announced by all nodes (e.g. ['2001:db8::/48'])"
+  type        = list(string)
+  default     = []
+}
+
+variable "bgp_router_id" {
+  description = "BGP router ID (defaults to host IP)"
+  type        = string
+  default     = ""
+}
+
+variable "bgp_vip" {
+  description = "IPv4 loopback BGP VIP"
+  type        = string
+  default     = ""
+}
+
+variable "bgp_vip6" {
+  description = "IPv6 loopback BGP VIP (e.g. '2001:db8::1')"
+  type        = string
+  default     = ""
+}
+
+variable "egress_iface" {
+  description = "Egress interface name (or comma-separated list)"
+  type        = string
+  default     = "eth1"
+}
+
+variable "egress_mode" {
+  description = "Egress interface mode: ethernet or gre"
+  type        = string
+  default     = "ethernet"
+
+  validation {
+    condition     = contains(["ethernet", "gre"], var.egress_mode)
+    error_message = "egress_mode must be 'ethernet' or 'gre'."
+  }
+}
+
 variable "egress_port" {
   description = "UDP port for outgoing multicast datagrams"
   type        = number
   default     = 9001
+}
+
+variable "enable_bgp" {
+  description = "Enable eBGP"
+  type        = bool
+  default     = false
+}
+
+variable "extra_ansible_vars" {
+  description = "Additional Ansible variables to pass as --extra-vars"
+  type        = map(any)
+  default     = {}
+}
+
+variable "gre_inner_ipv6" {
+  description = "IPv6 address/prefix assigned to the tunnel interface"
+  type        = string
+  default     = ""
+}
+
+variable "gre_local_ip6" {
+  description = "Local IPv6 address for the ip6gre tunnel endpoint (egress_mode=gre only)"
+  type        = string
+  default     = ""
+}
+
+variable "gre_remote_ip6" {
+  description = "Remote IPv6 address for the ip6gre tunnel endpoint (egress_mode=gre only)"
+  type        = string
+  default     = ""
+}
+
+variable "host_ip" {
+  description = "Public IP address of the target host"
+  type        = string
 }
 
 variable "listen_port" {
@@ -81,123 +188,13 @@ variable "shard_bits" {
   default     = 8
 }
 
-# Networking configuration
-variable "egress_iface" {
-  description = "Egress interface name (or comma-separated list)"
+variable "ssh_private_key_path" {
+  description = "Path to the SSH private key file"
   type        = string
-  default     = "eth1"
 }
 
-variable "egress_mode" {
-  description = "Egress interface mode: ethernet or gre"
+variable "ssh_user" {
+  description = "SSH username for the target host"
   type        = string
-  default     = "ethernet"
-
-  validation {
-    condition     = contains(["ethernet", "gre"], var.egress_mode)
-    error_message = "egress_mode must be 'ethernet' or 'gre'."
-  }
-}
-
-variable "gre_inner_ipv6" {
-  description = "IPv6 address/prefix assigned to the tunnel interface"
-  type        = string
-  default     = ""
-}
-
-variable "gre_local_ip6" {
-  description = "Local IPv6 address for the ip6gre tunnel endpoint (egress_mode=gre only)"
-  type        = string
-  default     = ""
-}
-
-variable "gre_remote_ip6" {
-  description = "Remote IPv6 address for the ip6gre tunnel endpoint (egress_mode=gre only)"
-  type        = string
-  default     = ""
-}
-
-# BGP configuration
-variable "bgp_prefix" {
-  description = "IPv4 BGP prefixes announced by all nodes"
-  type        = list(string)
-  default     = []
-}
-
-variable "bgp_prefix6" {
-  description = "IPv6 BGP prefixes announced by all nodes (e.g. ['2001:db8::/48'])"
-  type        = list(string)
-  default     = []
-}
-
-variable "bgp_vip" {
-  description = "IPv4 loopback BGP VIP"
-  type        = string
-  default     = ""
-}
-
-variable "bgp_vip6" {
-  description = "IPv6 loopback BGP VIP (e.g. '2001:db8::1')"
-  type        = string
-  default     = ""
-}
-
-variable "bgp_daemon" {
-  description = "BGP daemon to use: bird2 or frr"
-  type        = string
-  default     = "bird2"
-
-  validation {
-    condition     = contains(["bird2", "frr"], var.bgp_daemon)
-    error_message = "bgp_daemon must be 'bird2' or 'frr'."
-  }
-}
-
-variable "bgp_local_as" {
-  description = "Local BGP ASN"
-  type        = number
-  default     = 65001
-}
-
-variable "bgp_password" {
-  description = "Optional MD5 BGP session password"
-  type        = string
-  default     = ""
-  sensitive   = true
-}
-
-variable "bgp_peer_as" {
-  description = "Upstream provider BGP ASN"
-  type        = number
-  default     = 65000
-}
-
-variable "bgp_peer_ip" {
-  description = "Upstream BGP peer IPv4 address (leave empty for IPv6-only peer)"
-  type        = string
-  default     = ""
-}
-
-variable "bgp_peer_ip6" {
-  description = "Upstream BGP peer IPv6 address"
-  type        = string
-  default     = ""
-}
-
-variable "bgp_router_id" {
-  description = "BGP router ID (defaults to host IP)"
-  type        = string
-  default     = ""
-}
-
-variable "enable_bgp" {
-  description = "Enable eBGP"
-  type        = bool
-  default     = false
-}
-
-variable "extra_ansible_vars" {
-  description = "Additional Ansible variables to pass as --extra-vars"
-  type        = map(any)
-  default     = {}
+  default     = "ubuntu"
 }

@@ -48,7 +48,7 @@ and individually replaceable.
 
 ## Protocol details
 
-Frame formats, shard derivation, subtree filtering, and PrevSeq/CurSeq hash chain
+Frame formats, shard derivation, subtree filtering, and HashKey/SeqNum
 stamping are documented in the service and project repos:
 
 - [bitcoin-shard-proxy — Architecture](https://github.com/lightwebinc/bitcoin-shard-proxy/blob/main/docs/architecture.md)

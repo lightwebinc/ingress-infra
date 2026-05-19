@@ -1,41 +1,3 @@
-variable "hosts" {
-  description = "List of target hosts to provision. Per-host optional fields: gre_local_ip6 (local IPv6 tunnel endpoint), gre_inner_ipv6 (inner tunnel address), bgp_peer_ip (IPv4 BGP peer override), bgp_peer_ip6 (IPv6 BGP peer override)."
-  type = list(object({
-    name           = string
-    public_ip      = string
-    ssh_user       = string
-    ssh_key        = string
-    gre_local_ip6  = optional(string, "")
-    gre_inner_ipv6 = optional(string, "")
-    bgp_peer_ip    = optional(string, "")
-    bgp_peer_ip6   = optional(string, "")
-  }))
-}
-
-variable "bgp_prefix" {
-  description = "IPv4 BGP prefixes announced by all nodes"
-  type        = list(string)
-  default     = []
-}
-
-variable "bgp_prefix6" {
-  description = "IPv6 BGP prefixes announced by all nodes (e.g. ['2001:db8::/48'])"
-  type        = list(string)
-  default     = []
-}
-
-variable "bgp_vip" {
-  description = "IPv4 loopback BGP VIP"
-  type        = string
-  default     = ""
-}
-
-variable "bgp_vip6" {
-  description = "IPv6 loopback BGP VIP (e.g. '2001:db8::1')"
-  type        = string
-  default     = ""
-}
-
 variable "bgp_daemon" {
   description = "BGP daemon: bird2 or frr"
   type        = string
@@ -73,6 +35,30 @@ variable "bgp_peer_ip6" {
   default     = ""
 }
 
+variable "bgp_prefix" {
+  description = "IPv4 BGP prefixes announced by all nodes"
+  type        = list(string)
+  default     = []
+}
+
+variable "bgp_prefix6" {
+  description = "IPv6 BGP prefixes announced by all nodes (e.g. ['2001:db8::/48'])"
+  type        = list(string)
+  default     = []
+}
+
+variable "bgp_vip" {
+  description = "IPv4 loopback BGP VIP"
+  type        = string
+  default     = ""
+}
+
+variable "bgp_vip6" {
+  description = "IPv6 loopback BGP VIP (e.g. '2001:db8::1')"
+  type        = string
+  default     = ""
+}
+
 variable "egress_iface" {
   description = "Egress interface name"
   type        = string
@@ -95,6 +81,20 @@ variable "gre_remote_ip6" {
   description = "Remote IPv6 endpoint for ip6gre tunnel (egress_mode=gre only, shared across all hosts)"
   type        = string
   default     = ""
+}
+
+variable "hosts" {
+  description = "List of target hosts to provision. Per-host optional fields: gre_local_ip6 (local IPv6 tunnel endpoint), gre_inner_ipv6 (inner tunnel address), bgp_peer_ip (IPv4 BGP peer override), bgp_peer_ip6 (IPv6 BGP peer override)."
+  type = list(object({
+    name           = string
+    public_ip      = string
+    ssh_user       = string
+    ssh_key        = string
+    gre_local_ip6  = optional(string, "")
+    gre_inner_ipv6 = optional(string, "")
+    bgp_peer_ip    = optional(string, "")
+    bgp_peer_ip6   = optional(string, "")
+  }))
 }
 
 variable "mc_route_prefix" {
