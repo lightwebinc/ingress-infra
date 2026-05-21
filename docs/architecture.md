@@ -48,12 +48,15 @@ and individually replaceable.
 
 ## Protocol details
 
-Frame formats, shard derivation, subtree filtering, and HashKey/SeqNum
-stamping are documented in the service and project repos:
+Deploys `bitcoin-shard-proxy`, which handles BRC-12, BRC-124/BRC-128 (tx frames),
+BRC-130 (fragmentation), BRC-131 (block / coinbase), BRC-132 (subtree data), and
+BRC-134 (anchor transactions). Frame formats, shard derivation, subtree filtering,
+and HashKey/SeqNum stamping are documented in the service and project repos:
 
 - [bitcoin-shard-proxy — Architecture](https://github.com/lightwebinc/bitcoin-shard-proxy/blob/main/docs/architecture.md)
 - [Wire Protocol Specification](https://github.com/lightwebinc/bitcoin-shard-common/blob/main/docs/protocol.md)
 - [bitcoin-multicast — DESIGN.md](https://github.com/lightwebinc/bitcoin-multicast/blob/main/DESIGN.md)
+- BRC drafts: `bitcoin-multicast/docs/brc-{124,126,127,128,129,130,131,132,133,134,135}-*.md`
 
 ## BGP ingress (optional)
 
