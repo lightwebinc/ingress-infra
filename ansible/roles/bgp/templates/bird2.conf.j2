@@ -12,10 +12,13 @@ protocol direct {
   ipv6;
 }
 
-protocol kernel {
+protocol kernel kernel4 {
   ipv4 {
     export all;
   };
+}
+
+protocol kernel kernel6 {
   ipv6 {
     export all;
   };
@@ -81,6 +84,9 @@ protocol bgp upstream4 {
 {% if bgp_peer_ip6 | length > 0 %}
 protocol bgp upstream6 {
   local as {{ bgp_local_as }};
+{% if bgp_source_ip6 | default('') | length > 0 %}
+  source address {{ bgp_source_ip6 }};
+{% endif %}
   neighbor {{ bgp_peer_ip6 }} as {{ bgp_peer_as }};
   hold time {{ bgp_hold_time }};
   keepalive time {{ bgp_keepalive }};

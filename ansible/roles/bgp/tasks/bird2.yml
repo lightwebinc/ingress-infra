@@ -25,7 +25,7 @@
     src: bird2.conf.j2
     dest: "{{ '/usr/local/etc/bird/bird.conf' if ansible_os_family == 'FreeBSD' else '/etc/bird/bird.conf' }}"
     owner: root
-    group: root
+    group: bird
     mode: "0640"
     validate: "bird -p -c %s"
   notify: Restart bird
