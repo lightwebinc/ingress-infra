@@ -38,7 +38,6 @@ ansible-playbook -i inventory/hosts.yml site.yml
 - [Networking (GRE / ethernet)](docs/networking.md)
 - [BGP](docs/bgp.md)
 - [Terraform](docs/terraform.md)
-- [LXD lab](docs/lxd-lab.md)
 - OS notes: [Ubuntu 24.04](docs/os/ubuntu-24.04.md), [FreeBSD 14](docs/os/freebsd-14.md)
 
 ## Repository Layout
