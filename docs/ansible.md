@@ -71,9 +71,9 @@ All variables with defaults live in `group_vars/all.yml`.
 
 | Variable | Default | Description |
 |---------------------|----------------------------|-------------------------------------------------------------------------------------------------------|
-| `proxy_repo` | (GitHub URL) | git URL of bitcoin-shard-proxy source |
+| `proxy_repo` | (GitHub URL) | git URL of shard-proxy source |
 | `proxy_version` | `main` | git ref (branch, tag, or SHA) to check out |
-| `proxy_install_dir` | `/opt/bitcoin-shard-proxy` | Clone and build destination |
+| `proxy_install_dir` | `/opt/shard-proxy` | Clone and build destination |
 | `proxy_bin_dir` | `/usr/local/bin` | Where to install the compiled binary |
 | `listen_addr` | `[::]` | Bind address for incoming frames |
 | `udp_listen_port` | `9000` | UDP ingress port |
@@ -125,7 +125,7 @@ All variables with defaults live in `group_vars/all.yml`.
 | Role | Purpose |
 |-----------------------|-----------------------------------------------------------|
 | `common` | OS packages, Go toolchain install, build dependencies |
-| `bitcoin-shard-proxy` | Clone, build, install binary, configure service unit |
+| `shard-proxy` | Clone, build, install binary, configure service unit |
 | `networking` | Ethernet or GRE egress interface, IPv6 multicast routing |
 | `bgp` | BIRD2 or FRR install, config template, health-check timer |
 

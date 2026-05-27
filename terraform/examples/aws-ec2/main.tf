@@ -89,7 +89,7 @@ resource "aws_route_table_association" "public" {
 # ---------------------------------------------------------------
 resource "aws_security_group" "ingress_node" {
   name        = "${var.name_prefix}-ingress-node"
-  description = "bitcoin-ingress proxy node"
+  description = "ingress-infra proxy node"
   vpc_id      = aws_vpc.main.id
 
   tags = merge(local.common_tags, { Name = "${var.name_prefix}-sg" })
@@ -212,7 +212,7 @@ resource "aws_eip_association" "ingress_node" {
 
 locals {
   common_tags = {
-    Project     = "bitcoin-ingress"
+    Project     = "ingress-infra"
     ManagedBy   = "terraform"
     Environment = var.environment
   }

@@ -171,9 +171,9 @@ variable "metrics_addr" {
 }
 
 variable "proxy_repo" {
-  description = "Git URL of the bitcoin-shard-proxy repository"
+  description = "Git URL of the shard-proxy repository"
   type        = string
-  default     = "https://github.com/lightwebinc/bitcoin-shard-proxy.git"
+  default     = "https://github.com/lightwebinc/shard-proxy.git"
 }
 
 variable "proxy_version" {

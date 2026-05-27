@@ -1,18 +1,18 @@
 ---
 # ============================================================
-# bitcoin-ingress Ansible group_vars/all.yml
+# ingress-infra Ansible group_vars/all.yml
 # Override any variable per-host in inventory/hosts.yml
 # ============================================================
 
 # ------------------------------------------------------------
-# bitcoin-shard-proxy source and build
+# shard-proxy source and build
 # ------------------------------------------------------------
-proxy_repo: "https://github.com/lightwebinc/bitcoin-shard-proxy.git"
+proxy_repo: "https://github.com/lightwebinc/shard-proxy.git"
 proxy_version: "main"
-proxy_install_dir: "/opt/bitcoin-shard-proxy"
+proxy_install_dir: "/opt/shard-proxy"
 proxy_bin_dir: "/usr/local/bin"
-proxy_user: "bitcoin-proxy"
-proxy_group: "bitcoin-proxy"
+proxy_user: "shard-proxy"
+proxy_group: "shard-proxy"
 
 # Go toolchain version (used when building from source)
 go_version: "1.25.10"

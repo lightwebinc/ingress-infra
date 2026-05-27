@@ -1,6 +1,6 @@
 [Unit]
 Description=Bitcoin Shard Proxy
-Documentation=https://github.com/lightwebinc/bitcoin-shard-proxy
+Documentation=https://github.com/lightwebinc/shard-proxy
 After=network-online.target
 Wants=network-online.target
 {% if enable_bgp | bool %}
@@ -15,9 +15,9 @@ Before=frr.service
 Type=simple
 User={{ proxy_user }}
 Group={{ proxy_group }}
-EnvironmentFile=/etc/bitcoin-shard-proxy/config.env
+EnvironmentFile=/etc/shard-proxy/config.env
 ExecStartPre=/bin/sh -c '/sbin/ip -6 route add ff00::/8 dev {{ egress_iface if egress_iface is string else egress_iface[0] }} table local 2>/dev/null || true'
-ExecStart={{ proxy_bin_dir }}/bitcoin-shard-proxy
+ExecStart={{ proxy_bin_dir }}/shard-proxy
 {% if enable_bgp | bool %}
 ExecStop=/usr/local/bin/bsp-bgp-withdraw.sh
 {% endif %}

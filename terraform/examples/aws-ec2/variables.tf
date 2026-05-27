@@ -145,7 +145,7 @@ variable "metrics_allowed_cidrs" {
 variable "name_prefix" {
   description = "Prefix for all resource names"
   type        = string
-  default     = "bitcoin-ingress"
+  default     = "ingress-infra"
 }
 
 variable "shard_bits" {

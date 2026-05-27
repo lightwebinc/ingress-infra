@@ -1,14 +1,14 @@
-# bitcoin-ingress
+# ingress-infra
 
-[![Lint](https://github.com/lightwebinc/bitcoin-ingress/actions/workflows/lint.yml/badge.svg)](https://github.com/lightwebinc/bitcoin-ingress/actions/workflows/lint.yml)
+[![Lint](https://github.com/lightwebinc/ingress-infra/actions/workflows/lint.yml/badge.svg)](https://github.com/lightwebinc/ingress-infra/actions/workflows/lint.yml)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 
 Ansible and Terraform automation for deploying
-[`bitcoin-shard-proxy`](https://github.com/lightwebinc/bitcoin-shard-proxy)
+[`shard-proxy`](https://github.com/lightwebinc/shard-proxy)
 nodes — the stateless ingress tier of the BSV multicast pipeline.
 
 ```text
-BSV senders ──UDP/TCP──▶  bitcoin-shard-proxy  ──multicast──▶  FF05::<shard>:9001
+BSV senders ──UDP/TCP──▶  shard-proxy  ──multicast──▶  FF05::<shard>:9001
                           (this repo deploys)                   (subscriber fabric)
 ```
 

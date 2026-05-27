@@ -1,5 +1,5 @@
 ---
-- name: Deploy bitcoin-ingress proxy nodes
+- name: Deploy ingress-infra proxy nodes
   hosts: ingress_nodes
   become: true
   gather_facts: true
@@ -8,7 +8,7 @@
     - role: common
       tags: [common]
 
-    - role: bitcoin-shard-proxy
+    - role: shard-proxy
       tags: [proxy]
 
     - role: networking

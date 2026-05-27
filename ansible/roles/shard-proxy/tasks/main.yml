@@ -29,7 +29,7 @@
     scope: global
     value: "{{ proxy_install_dir }}"
 
-- name: Clone / update bitcoin-shard-proxy repository
+- name: Clone / update shard-proxy repository
   ansible.builtin.git:
     repo: "{{ proxy_repo }}"
     dest: "{{ proxy_install_dir }}"
@@ -40,7 +40,7 @@
 - name: Push pre-built proxy binary (skips git/build)
   ansible.builtin.copy:
     src: "{{ proxy_local_binary }}"
-    dest: "{{ proxy_install_dir }}/bitcoin-shard-proxy"
+    dest: "{{ proxy_install_dir }}/shard-proxy"
     owner: "{{ proxy_user }}"
     group: "{{ proxy_group }}"
     mode: "0755"
@@ -56,13 +56,13 @@
 
 - name: Stat existing proxy binary in install dir
   ansible.builtin.stat:
-    path: "{{ proxy_install_dir }}/bitcoin-shard-proxy"
+    path: "{{ proxy_install_dir }}/shard-proxy"
   register: proxy_binary_stat
   when: proxy_local_binary | default('') | length == 0
 
-- name: Build bitcoin-shard-proxy binary
+- name: Build shard-proxy binary
   ansible.builtin.command:
-    cmd: "{{ go_install_dir }}/bin/go build -buildvcs=false -o {{ proxy_install_dir }}/bitcoin-shard-proxy ."
+    cmd: "{{ go_install_dir }}/bin/go build -buildvcs=false -o {{ proxy_install_dir }}/shard-proxy ."
     chdir: "{{ proxy_install_dir }}"
   environment:
     PATH: "{{ go_install_dir }}/bin:{{ ansible_env.PATH }}"
@@ -79,24 +79,24 @@
 
 - name: Set ownership on pushed/built binary
   ansible.builtin.file:
-    path: "{{ proxy_install_dir }}/bitcoin-shard-proxy"
+    path: "{{ proxy_install_dir }}/shard-proxy"
     owner: "{{ proxy_user }}"
     group: "{{ proxy_group }}"
     mode: "0755"
 
 - name: Install binary to system bin dir
   ansible.builtin.copy:
-    src: "{{ proxy_install_dir }}/bitcoin-shard-proxy"
-    dest: "{{ proxy_bin_dir }}/bitcoin-shard-proxy"
+    src: "{{ proxy_install_dir }}/shard-proxy"
+    dest: "{{ proxy_bin_dir }}/shard-proxy"
     remote_src: true
     owner: root
     group: "{{ proxy_group }}"
     mode: "0755"
-  notify: Restart bitcoin-shard-proxy
+  notify: Restart shard-proxy
 
 - name: Create config directory
   ansible.builtin.file:
-    path: "{{ '/usr/local/etc' if ansible_os_family == 'FreeBSD' else '/etc/bitcoin-shard-proxy' }}"
+    path: "{{ '/usr/local/etc' if ansible_os_family == 'FreeBSD' else '/etc/shard-proxy' }}"
     state: directory
     owner: root
     group: "{{ proxy_group }}"
@@ -105,50 +105,50 @@
 - name: Deploy environment config file
   ansible.builtin.template:
     src: config.env.j2
-    dest: "{{ '/usr/local/etc/bitcoin-shard-proxy.conf' if ansible_os_family == 'FreeBSD' else '/etc/bitcoin-shard-proxy/config.env' }}"
+    dest: "{{ '/usr/local/etc/shard-proxy.conf' if ansible_os_family == 'FreeBSD' else '/etc/shard-proxy/config.env' }}"
     owner: root
     group: "{{ proxy_group }}"
     mode: "0640"
-  notify: Restart bitcoin-shard-proxy
+  notify: Restart shard-proxy
 
 - name: Deploy systemd service unit (Linux)
   ansible.builtin.template:
-    src: bitcoin-shard-proxy.service.j2
-    dest: /etc/systemd/system/bitcoin-shard-proxy.service
+    src: shard-proxy.service.j2
+    dest: /etc/systemd/system/shard-proxy.service
     owner: root
     group: root
     mode: "0644"
   when: ansible_os_family != 'FreeBSD'
   notify:
     - Reload systemd
-    - Restart bitcoin-shard-proxy
+    - Restart shard-proxy
 
 - name: Deploy rc.d service script (FreeBSD)
   ansible.builtin.template:
-    src: bitcoin_shard_proxy.rc.j2
-    dest: /usr/local/etc/rc.d/bitcoin_shard_proxy
+    src: shard_proxy.rc.j2
+    dest: /usr/local/etc/rc.d/shard_proxy
     owner: root
     group: wheel
     mode: "0755"
   when: ansible_os_family == 'FreeBSD'
-  notify: Restart bitcoin-shard-proxy
+  notify: Restart shard-proxy
 
-- name: Enable and start bitcoin-shard-proxy (Linux)
+- name: Enable and start shard-proxy (Linux)
   ansible.builtin.systemd:
-    name: bitcoin-shard-proxy
+    name: shard-proxy
     enabled: true
     state: started
   when: ansible_os_family != 'FreeBSD'
 
-- name: Enable bitcoin-shard-proxy in rc.conf (FreeBSD)
+- name: Enable shard-proxy in rc.conf (FreeBSD)
   ansible.builtin.lineinfile:
     path: /etc/rc.conf
-    regexp: '^bitcoin_shard_proxy_enable='
-    line: 'bitcoin_shard_proxy_enable="YES"'
+    regexp: '^shard_proxy_enable='
+    line: 'shard_proxy_enable="YES"'
   when: ansible_os_family == 'FreeBSD'
 
-- name: Start bitcoin-shard-proxy (FreeBSD)
+- name: Start shard-proxy (FreeBSD)
   ansible.builtin.service:
-    name: bitcoin_shard_proxy
+    name: shard_proxy
     state: started
   when: ansible_os_family == 'FreeBSD'

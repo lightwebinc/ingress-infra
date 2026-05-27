@@ -1,7 +1,7 @@
 # Copy this file to terraform.tfvars and fill in your values.
 
 aws_region     = "us-east-1"
-name_prefix    = "bitcoin-ingress"
+name_prefix    = "ingress-infra"
 environment    = "production"
 
 vpc_cidr            = "10.10.0.0/16"

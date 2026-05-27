@@ -2,7 +2,7 @@
 
 ## Overview
 
-`bitcoin-ingress` deploys and configures `bitcoin-shard-proxy` nodes that form the ingress tier of a
+`ingress-infra` deploys and configures `shard-proxy` nodes that form the ingress tier of a
 Bitcoin SV multicast distribution fabric. Each node:
 
 1. Receives BSV transaction frames (BRC-124/BRC-128 or legacy BRC-12) from senders on the public internet (UDP by default; TCP ingress is optional for reliable delivery).
@@ -24,7 +24,7 @@ and individually replaceable.
                     ┌────────────────┼────────────────┐
                     │                │                │
               ┌─────▼──┐       ┌─────▼──┐       ┌─────▼──┐
-              │ingress │       │ingress │       │ingress │   ← bitcoin-ingress nodes
+              │ingress │       │ingress │       │ingress │   ← ingress-infra nodes
               │node A  │       │node B  │       │node C  │     (this repo)
               └─────┬──┘       └─────┬──┘       └─────┬──┘
                     │  IPv6 UDP multicast  FF05::<shard>
@@ -48,12 +48,12 @@ and individually replaceable.
 
 ## Protocol details
 
-Deploys `bitcoin-shard-proxy`, which handles BRC-12, BRC-124/BRC-128 (tx frames),
+Deploys `shard-proxy`, which handles BRC-12, BRC-124/BRC-128 (tx frames),
 BRC-130 (fragmentation), BRC-131 (block / coinbase), BRC-132 (subtree data), and
 BRC-134 (anchor transactions). Frame formats, shard derivation, subtree filtering,
 and HashKey/SeqNum stamping are documented in the service and project repos:
 
-- [bitcoin-shard-proxy — Architecture](https://github.com/lightwebinc/bitcoin-shard-proxy/blob/main/docs/architecture.md)
+- [shard-proxy — Architecture](https://github.com/lightwebinc/shard-proxy/blob/main/docs/architecture.md)
 - [Wire Protocol Specification](https://github.com/lightwebinc/bitcoin-shard-common/blob/main/docs/protocol.md)
 - [bitcoin-multicast — DESIGN.md](https://github.com/lightwebinc/bitcoin-multicast/blob/main/DESIGN.md)
 - BRC drafts: `bitcoin-multicast/docs/brc-{124,126,127,128,129,130,131,132,133,134,135}-*.md`

@@ -1,0 +1,78 @@
+#!/bin/sh
+#
+# PROVIDE: shard_proxy
+# REQUIRE: NETWORKING DAEMON
+# KEYWORD: shutdown
+#
+# Managed by Ansible — do not edit manually
+#
+# Add the following to /etc/rc.conf to enable:
+#   shard_proxy_enable="YES"
+
+. /etc/rc.subr
+
+name="shard_proxy"
+rcvar="shard_proxy_enable"
+desc="Bitcoin Shard Proxy"
+
+load_rc_config "${name}"
+
+: ${shard_proxy_enable:="NO"}
+: ${shard_proxy_user:="{{ proxy_user }}"}
+: ${shard_proxy_group:="{{ proxy_group }}"}
+: ${shard_proxy_config:="/usr/local/etc/shard-proxy.conf"}
+: ${shard_proxy_logfile:="/var/log/shard_proxy.log"}
+: ${shard_proxy_pidfile:="/var/run/shard_proxy.pid"}
+
+pidfile="${shard_proxy_pidfile}"
+command="{{ proxy_bin_dir }}/shard-proxy"
+command_args=""
+
+start_precmd="shard_proxy_prestart"
+start_cmd="shard_proxy_start"
+stop_cmd="shard_proxy_stop"
+status_cmd="shard_proxy_status"
+
+shard_proxy_prestart()
+{
+    # Load environment from config file
+    if [ -f "${shard_proxy_config}" ]; then
+        . "${shard_proxy_config}"
+    fi
+    export LISTEN_ADDR UDP_LISTEN_PORT TCP_LISTEN_PORT EGRESS_PORT MULTICAST_IF SHARD_BITS
+    export MC_SCOPE MC_GROUP_ID NUM_WORKERS METRICS_ADDR
+    export OTLP_ENDPOINT OTLP_INTERVAL DEBUG
+
+    # Add IPv6 multicast route
+    /sbin/route -6 add -net ff00::/8 -interface {{ egress_iface if egress_iface is string else egress_iface[0] }} 2>/dev/null || true
+}
+
+shard_proxy_start()
+{
+    shard_proxy_prestart
+    /usr/sbin/daemon -f -p "${pidfile}" -u "${shard_proxy_user}" \
+        ${command} >> "${shard_proxy_logfile}" 2>&1
+    echo "shard_proxy started."
+}
+
+shard_proxy_stop()
+{
+    if [ -f "${pidfile}" ]; then
+        kill -TERM $(cat "${pidfile}") && rm -f "${pidfile}"
+        echo "shard_proxy stopped."
+    else
+        echo "shard_proxy is not running."
+    fi
+}
+
+shard_proxy_status()
+{
+    if [ -f "${pidfile}" ] && kill -0 $(cat "${pidfile}") 2>/dev/null; then
+        echo "shard_proxy is running (pid $(cat ${pidfile}))."
+    else
+        echo "shard_proxy is not running."
+        return 1
+    fi
+}
+
+run_rc_command "$1"

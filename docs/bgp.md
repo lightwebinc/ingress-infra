@@ -52,7 +52,7 @@ Each node:
 1. Configures a loopback VIP (`bgp_vip`) from `bgp_prefix`.
 2. Runs a BGP daemon (BIRD2 or FRR) that opens an eBGP session to the upstream provider.
 3. Announces all `bgp_prefix` entries with `next-hop self`.
-4. The service check (see below) withdraws the route if `bitcoin-shard-proxy` is unhealthy.
+4. The service check (see below) withdraws the route if `shard-proxy` is unhealthy.
 
 ```text
          bgp_prefix:  192.0.2.0/24   (IPv4)
@@ -234,7 +234,7 @@ fi
 
 ## Service Ordering
 
-When `enable_bgp: true`, the `bitcoin-shard-proxy.service` unit gains two extra directives:
+When `enable_bgp: true`, the `shard-proxy.service` unit gains two extra directives:
 
 ```ini
 [Unit]
@@ -365,7 +365,7 @@ The role configures `bgp_vip` on the loopback interface so the OS responds to it
 ### Ubuntu
 
 ```yaml
-# /etc/netplan/62-bitcoin-ingress-vip.yaml
+# /etc/netplan/62-ingress-infra-vip.yaml
 network:
   version: 2
   ethernets:

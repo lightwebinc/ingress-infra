@@ -2,7 +2,7 @@
 
 ## Egress interface modes
 
-`bitcoin-shard-proxy` sends IPv6 UDP multicast datagrams out of one or more named network interfaces.
+`shard-proxy` sends IPv6 UDP multicast datagrams out of one or more named network interfaces.
 The `networking` Ansible role configures the egress interface in one of two modes:
 
 | Mode | Variable | Description |
@@ -27,7 +27,7 @@ egress_iface: eth1        # interface name on target host
 
 ### Ubuntu 24.04 — Netplan snippet
 
-The `networking` role writes `/etc/netplan/60-bitcoin-ingress.yaml`:
+The `networking` role writes `/etc/netplan/60-ingress-infra.yaml`:
 
 ```yaml
 network:
@@ -69,10 +69,10 @@ gre_inner_ipv6: "2001:db8:2::2/64"
 
 ### Ubuntu 24.04
 
-The role creates `/etc/netplan/61-bitcoin-ingress-gre.yaml`:
+The role creates `/etc/netplan/61-ingress-infra-gre.yaml`:
 
 ```yaml
-# /etc/netplan/61-bitcoin-ingress-gre.yaml
+# /etc/netplan/61-ingress-infra-gre.yaml
 network:
   version: 2
   tunnels:
@@ -127,7 +127,7 @@ Leave `mc_route_prefix: ""` (the default) to use the auto-derived scope prefix.
 ### Multicast route — Ubuntu 24.04
 
 The route is injected as a `routes:` stanza in the egress interface's netplan file
-(`/etc/netplan/60-bitcoin-ingress.yaml` or `61-bitcoin-ingress-gre.yaml`) and applied
+(`/etc/netplan/60-ingress-infra.yaml` or `61-ingress-infra-gre.yaml`) and applied
 immediately via `ip -6 route replace`.
 
 ```yaml
@@ -156,7 +156,7 @@ ipv6_gateway_enable="YES"
 
 ## Multiple egress interfaces
 
-`bitcoin-shard-proxy` supports comma-separated `-iface` values and fans out each datagram to all
+`shard-proxy` supports comma-separated `-iface` values and fans out each datagram to all
 listed interfaces. To use multiple egress interfaces, set `egress_iface` as a list:
 
 ```yaml
@@ -171,7 +171,7 @@ The role joins the list into a comma-separated string and passes it to the `-ifa
 
 ## Ingress interface
 
-The ingress (sender-facing) interface is where `bitcoin-shard-proxy` listens for BRC-124/BRC-128 (or legacy BRC-12) frames.
+The ingress (sender-facing) interface is where `shard-proxy` listens for BRC-124/BRC-128 (or legacy BRC-12) frames.
 This is typically the default route interface and requires no special configuration beyond reachability
 from senders.
 
