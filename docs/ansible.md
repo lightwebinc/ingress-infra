@@ -79,7 +79,7 @@ All variables with defaults live in `group_vars/all.yml`.
 | `udp_listen_port` | `9000` | UDP ingress port |
 | `tcp_listen_port` | `0` | TCP ingress port for reliable delivery (0 = disabled) |
 | `egress_port` | `9001` | UDP egress port for multicast groups |
-| `shard_bits` | `8` | Bit width of shard key (1–15) |
+| `shard_bits` | `2` | Bit width of shard key (0–12; must match the rest of the fabric) |
 | `mc_scope` | `site` | Multicast scope: link / site / org / global |
 | `mc_group_id` | `"0x000B"` | IANA group-id (bytes 12–13); default = IANA Bitcoin allocation `FF0X::B` |
 | `num_workers` | `0` | Worker count (0 = runtime.NumCPU) |
@@ -165,6 +165,11 @@ system state differs from the declared configuration.
 
 ---
 
-## LXD / local lab deployment
+## Lab and Kubernetes deployment
 
-See [docs/lxd-lab.md](lxd-lab.md) for a complete walkthrough covering SSH key injection, inventory setup, bridge MDB refresh, and known issues specific to LXD-hosted Ubuntu 24.04 VMs.
+For container-based local labs and CI testing, use the Go Docker harness in
+[multicast-test](https://github.com/lightwebinc/multicast-test). For
+Kubernetes deployment, see
+[multicast-kube-infra](https://github.com/lightwebinc/multicast-kube-infra)
+and the [shard-proxy-helm](https://github.com/lightwebinc/shard-proxy-helm)
+chart.

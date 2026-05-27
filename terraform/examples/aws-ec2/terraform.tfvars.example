@@ -19,7 +19,7 @@ allocate_eips = false
 
 # Proxy
 listen_port  = 9000
-shard_bits   = 8
+shard_bits   = 2
 egress_mode  = "ethernet"
 egress_iface = "eth1"
 

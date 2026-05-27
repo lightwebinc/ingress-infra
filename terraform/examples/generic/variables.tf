@@ -104,7 +104,7 @@ variable "mc_route_prefix" {
 }
 
 variable "shard_bits" {
-  description = "Shard bit width (1-24)"
+  description = "Shard bit width (0-12 per BRC-129); must match the rest of the fabric"
   type        = number
-  default     = 8
+  default     = 2
 }

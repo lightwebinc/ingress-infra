@@ -7,7 +7,7 @@ all:
         # Override per-host below as needed.
         ansible_user: ubuntu
         egress_mode: ethernet
-        shard_bits: 8
+        shard_bits: 2
         enable_bgp: false
         # NOTE: egress_iface must be set per-host (not here) to override the
         # group_vars/all.yml default. Ansible gives group_vars/all higher
@@ -42,7 +42,8 @@ all:
     #       gre_local_ip: 203.0.113.30
     #       gre_inner_ipv6: "2001:db8:2::3/64"
 
-    # For an LXD / local lab example see docs/lxd-lab.md
+    # For local lab / CI testing, use the Docker harness in the
+    # multicast-test repo. For Kubernetes, see multicast-kube-infra.
 
     # iBGP upstream peers — run bgp-ibgp.yml against this group
     # bgp_ibgp_nodes:

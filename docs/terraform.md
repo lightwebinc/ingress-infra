@@ -54,7 +54,7 @@ hosts = [
   }
 ]
 
-shard_bits   = 8
+shard_bits   = 2
 egress_mode  = "ethernet"
 egress_iface = "eth1"
 enable_bgp   = false
@@ -87,7 +87,7 @@ instance_count   = 2
 key_name         = "my-key-pair"
 ssh_private_key  = "~/.ssh/id_ed25519"
 
-shard_bits   = 8
+shard_bits   = 2
 egress_mode  = "gre"
 gre_remote_ip = "198.51.100.1"
 

@@ -19,7 +19,7 @@ hosts = [
   },
 ]
 
-shard_bits   = 8
+shard_bits   = 2
 egress_mode  = "ethernet"
 egress_iface = "eth1"
 
