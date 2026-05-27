@@ -39,7 +39,7 @@ and individually replaceable.
                         │miners │  │exch-  │  │other  │   ← direct multicast subscribers
                         │       │  │anges  │  │SVPs   │     (join shard groups)
                         └───────┘  └───────┘  └───┬───┘
-                                                   │  bitcoin-shard-listener
+                                                   │  shard-listener
                                               ┌────▼──────────────┐
                                               │ downstream unicast │   ← filtered + forwarded
                                               │ consumers          │     over UDP or TCP
@@ -54,9 +54,9 @@ BRC-134 (anchor transactions). Frame formats, shard derivation, subtree filterin
 and HashKey/SeqNum stamping are documented in the service and project repos:
 
 - [shard-proxy — Architecture](https://github.com/lightwebinc/shard-proxy/blob/main/docs/architecture.md)
-- [Wire Protocol Specification](https://github.com/lightwebinc/bitcoin-shard-common/blob/main/docs/protocol.md)
-- [bitcoin-multicast — DESIGN.md](https://github.com/lightwebinc/bitcoin-multicast/blob/main/DESIGN.md)
-- BRC drafts: `bitcoin-multicast/docs/brc-{124,126,127,128,129,130,131,132,133,134,135}-*.md`
+- [Wire Protocol Specification](https://github.com/lightwebinc/shard-common/blob/main/docs/protocol.md)
+- [bsv-multicast — DESIGN.md](https://github.com/lightwebinc/bsv-multicast/blob/main/DESIGN.md)
+- BRC drafts: `bsv-multicast/docs/brc-{124,126,127,128,129,130,131,132,133,134,135}-*.md`
 
 ## BGP ingress (optional)
 
