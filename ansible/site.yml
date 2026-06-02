@@ -8,6 +8,9 @@
     - role: common
       tags: [common]
 
+    - role: perf-tuning
+      tags: [perf-tuning]
+
     - role: shard-proxy
       tags: [proxy]
 
