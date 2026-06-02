@@ -125,11 +125,32 @@ All variables with defaults live in `group_vars/all.yml`.
 | Role | Purpose |
 |-----------------------|-----------------------------------------------------------|
 | `common` | OS packages, Go toolchain install, build dependencies |
+| `perf-tuning` | High-PPS host tuning: UDP buffers, busy-poll, txqueuelen, deep C-state disable, irqbalance off |
 | `shard-proxy` | Clone, build, install binary, configure service unit |
 | `networking` | Ethernet or GRE egress interface, IPv6 multicast routing |
 | `bgp` | BIRD2 or FRR install, config template, health-check timer |
 
 Roles are applied in the order listed by `site.yml`. The `bgp` role is skipped when `enable_bgp: false`.
+
+### perf-tuning role
+
+Applies the host-level network/CPU tunings measured to raise small-packet
+(200–256 B Bitcoin P2PKH) proxy throughput. All knobs live in
+`roles/perf-tuning/defaults/main.yml`; the role is self-documenting via
+inline comments. Highlights:
+
+| Variable | Default | Effect |
+|----------|---------|--------|
+| `perf_tuning_enabled` | `true` | Master switch; set `false` for stock OS behaviour |
+| `perf_tuning_sysctls` | UDP rmem/wmem 256 MiB, `busy_poll`/`busy_read` 50 µs, backlog 1 M | `/etc/sysctl.d/65-perf-tuning.conf` |
+| `perf_tuning_txqueuelen` | `10000` | systemd-networkd `.link` drop-in on the egress NIC |
+| `perf_tuning_disable_cstates` | `true` | Disables C3–C10 at runtime + boot (systemd oneshot) |
+| `perf_tuning_grub_cmdline` | `true` | Adds `intel_idle.max_cstate=1` to GRUB (reboot required) |
+| `perf_tuning_disable_irqbalance` | `true` | Stops + masks `irqbalance` (conflicts with manual IRQ affinity) |
+
+The same role ships identically in `listener-infra` and
+`retransmission-infra`. See `multicast-skills/performance-testing.md` for
+the measurement methodology behind these values.
 
 ---
 
@@ -142,6 +163,7 @@ ansible-playbook -i inventory/hosts.yml site.yml --tags proxy
 ansible-playbook -i inventory/hosts.yml site.yml --tags networking
 ansible-playbook -i inventory/hosts.yml site.yml --tags bgp
 ansible-playbook -i inventory/hosts.yml site.yml --tags common
+ansible-playbook -i inventory/hosts.yml site.yml --tags perf-tuning
 ```
 
 ---
