@@ -33,6 +33,10 @@ num_workers: 0
 metrics_addr: ":9100"
 otlp_endpoint: ""
 otlp_interval: "30s"
+# Unified logging — see bsv-multicast/docs/UnifiedLogging/unified-logging-plan.md
+log_format: "json"            # text | json (json for fleet aggregation; collector phase is deferred)
+log_level: "info"             # debug|info|warn|error; runtime-togglable via POST /loglevel + SIGHUP
+trace_sampling: 0             # 0..1 trace head sampling (0 = off; exports via otlp_endpoint; control-plane only)
 drain_timeout: "0s"           # Pre-drain delay on shutdown; set to ≥ LB health-check interval in production
 frag_mtu: 0                   # BRC-130 fragmentation MTU (0 = disabled)
 proxy_debug: false
