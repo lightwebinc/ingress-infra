@@ -39,12 +39,17 @@ proxy_debug: false
 
 # Two-tier ingress TxID deduplication (proxy-side)
 # tier-1: in-process LRU (always active when txid_dedup_local_cap > 0)
-# tier-2: Redis SETNX (active when txid_dedup_redis_addr is non-empty)
+# tier-2: modular shard-common/cache backend SETNX (memory|redis|aerospike)
 # Set txid_dedup_local_cap: 0 to disable ingress dedup entirely.
+# See bsv-multicast/docs/ModularCacheBackend/modular-cache-backend.md
 txid_dedup_local_cap: 1048576   # tier-1 LRU capacity; 0 = disable
-txid_dedup_redis_addr: ""       # Redis addr; empty = local-only
-txid_dedup_prefix: "bsp:tx:"   # Redis key prefix — must match listener's ingress_set_prefix
-txid_dedup_ttl: "10m"           # Redis entry TTL
+txid_dedup_backend: ""          # redis|aerospike|memory|none; empty infers redis when addr set, else none
+txid_dedup_redis_addr: ""       # Redis/Valkey/Dragonfly addr; empty = local-only
+txid_dedup_aerospike_hosts: ""  # comma-separated host:port (required when backend=aerospike)
+txid_dedup_aerospike_namespace: "cache"
+txid_dedup_aerospike_set: "bsp"
+txid_dedup_prefix: "bsp:tx:"   # key prefix — must match listener's ingress_set_prefix
+txid_dedup_ttl: "10m"           # tier-2 entry TTL
 
 # ------------------------------------------------------------
 # Networking

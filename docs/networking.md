@@ -186,3 +186,12 @@ Both transports share the same forwarding pipeline; they can run simultaneously.
 
 If eBGP is enabled, the ingress interface IP (or BGP VIP) is announced via BGP.
 See [bgp.md](bgp.md).
+
+## Dedup backend connectivity
+
+The tier-2 ingress dedup backend (`txid_dedup_backend`) is an out-of-band TCP
+service on the management network: Redis/Valkey/Dragonfly on 6379, or Aerospike
+Community Edition on 3000 (client). It is independent of the multicast fabric.
+Backend errors fail open — the proxy forwards the frame and records a metric —
+so a backend outage never stops ingress. See
+[ModularCacheBackend](https://github.com/lightwebinc/bsv-multicast/blob/main/docs/ModularCacheBackend/modular-cache-backend.md).
