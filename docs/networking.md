@@ -194,4 +194,4 @@ service on the management network: Redis/Valkey/Dragonfly on 6379, or Aerospike
 Community Edition on 3000 (client). It is independent of the multicast fabric.
 Backend errors fail open — the proxy forwards the frame and records a metric —
 so a backend outage never stops ingress. See
-[ModularCacheBackend](https://github.com/lightwebinc/bsv-multicast/blob/main/docs/ModularCacheBackend/modular-cache-backend.md).
+[shard-common cache backend](https://github.com/lightwebinc/shard-common/blob/main/docs/cache-backend.md).
