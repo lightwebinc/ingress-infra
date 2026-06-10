@@ -149,8 +149,7 @@ inline comments. Highlights:
 | `perf_tuning_disable_irqbalance` | `true` | Stops + masks `irqbalance` (conflicts with manual IRQ affinity) |
 
 The same role ships identically in `listener-infra` and
-`retransmission-infra`. See `multicast-skills/performance-testing.md` for
-the measurement methodology behind these values.
+`retransmission-infra`.
 
 ---
 

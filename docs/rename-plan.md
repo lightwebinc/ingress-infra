@@ -29,8 +29,6 @@
 | bitcoin-subtx-generator-helm | subtx-generator-helm |
 | shard-proxy-helm     | shard-proxy-helm     |
 | bitcoin-retransmission       | retransmission-infra |
-| 10gb-direct-testing          | (no change)          |
-| pay-per-flow                 | (no change)          |
 
 ---
 
@@ -399,16 +397,7 @@ These live outside any single repo and reference multiple `bitcoin-*` names.
 | ------------------------------------------------- | ------------------------------------------------------------------- |
 | `~/repo/bump_all_tags.sh`                         | hardcoded list `("bitcoin-retry-endpoint" ...)` → new names         |
 | `~/repo/update-shard-common.sh`                   | `MODULE="github.com/lightwebinc/bitcoin-shard-common"`; `COMMON_DIR`; `DEPENDENT_DIRS` array |
-| `~/repo/multicast-skills/architecture.md`         | repo list, dep graph, sibling refs                                  |
-| `~/repo/multicast-skills/build-deploy.md`         | clone URLs, image refs                                              |
-| `~/repo/multicast-skills/conventions.md`          | module path examples                                                |
-| `~/repo/multicast-skills/testing.md`              | repo names in test instructions                                     |
-| `~/repo/multicast-skills/testing-environments.md` | repo names                                                          |
-| `~/repo/multicast-skills/protocol.md`             | repo refs (if any)                                                  |
-| `~/repo/10gb-direct-testing/*.sh`                 | hardcoded `shard-proxy` etc. binary names/paths             |
-| `~/repo/10gb-direct-testing/README.md`            | references                                                          |
 | `~/repo/.windsurf/workflows/{build-and-push,run-scenario}.md` | hardcoded repo dirs and image refs                       |
-| `~/repo/pay-per-flow/DESIGN.md`                   | sibling repo references                                             |
 | `~/repo/.claude/settings.local.json`              | allowlists may reference `bitcoin-*` paths                          |
 | Each repo's `.claude/settings.local.json`         | same                                                                |
 
@@ -469,7 +458,7 @@ Phase 2:  shard-common: update module path → tag release
           Then per-repo follow-ups:
              2.7 READMEs/badges/docs (every repo)
              2.8 cross-repo scripts: bump_all_tags.sh, update-shard-common.sh,
-                 multicast-skills/, 10gb-direct-testing/, .windsurf/
+                 .windsurf/
 
 Phase 3:  helm upgrade cycle on deployed clusters → pull new GHCR image paths
 ```
