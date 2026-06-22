@@ -85,7 +85,7 @@ must be reachable:
 
 | Port | Protocol | Direction | Purpose |
 |------|----------|-----------|---------------------------------------|
-| 9000 | UDP | inbound | shard-proxy ingress |
+| 8725 | UDP | inbound | shard-proxy ingress |
 | 179 | TCP | in+out | BGP (if `enable_bgp: true`) |
 | 9100 | TCP | inbound | Prometheus metrics / health endpoints |
 

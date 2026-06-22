@@ -177,7 +177,7 @@ from senders.
 
 ```yaml
 listen_addr: "[::]"       # bind all interfaces
-udp_listen_port: 9000     # UDP ingress (always active)
+udp_listen_port: 8725     # UDP ingress (always active)
 tcp_listen_port: 0        # TCP ingress for reliable delivery (0 = disabled)
 ```
 

@@ -76,7 +76,7 @@ All variables with defaults live in `group_vars/all.yml`.
 | `proxy_install_dir` | `/opt/shard-proxy` | Clone and build destination |
 | `proxy_bin_dir` | `/usr/local/bin` | Where to install the compiled binary |
 | `listen_addr` | `[::]` | Bind address for incoming frames |
-| `udp_listen_port` | `9000` | UDP ingress port |
+| `udp_listen_port` | `8725` | UDP ingress port |
 | `tcp_listen_port` | `0` | TCP ingress port for reliable delivery (0 = disabled) |
 | `egress_port` | `9001` | UDP egress port for multicast groups |
 | `shard_bits` | `2` | Bit width of shard key (0–12; must match the rest of the fabric) |

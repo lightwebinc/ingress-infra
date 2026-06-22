@@ -23,7 +23,7 @@ go_install_dir: "/usr/local/go"
 # All flags have env-var equivalents set in the service unit
 # ------------------------------------------------------------
 listen_addr: "[::]"
-udp_listen_port: 9000
+udp_listen_port: 8725
 tcp_listen_port: 0
 egress_port: 9001
 shard_bits: 2

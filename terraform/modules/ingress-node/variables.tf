@@ -143,7 +143,7 @@ variable "host_ip" {
 variable "listen_port" {
   description = "UDP port for incoming BSV transaction frames"
   type        = number
-  default     = 9000
+  default     = 8725
 }
 
 variable "mc_group_id" {
