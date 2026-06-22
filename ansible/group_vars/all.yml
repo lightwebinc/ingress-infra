@@ -25,6 +25,15 @@ go_install_dir: "/usr/local/go"
 listen_addr: "[::]"
 udp_listen_port: 8725
 tcp_listen_port: 0
+# Miner-tier ingress gate. The user ports above are transaction-only; BRC-131
+# block / BRC-133 coinbase / BRC-132 subtree-data frames are dropped there and
+# may only enter via the miner ingress below. Leave at 0 to ingest
+# transactions only. Restrict the miner port to miner-tier sources at the
+# firewall / provider ACL (see docs/networking.md). 0 = disabled.
+miner_listen_port: 0
+miner_tcp_listen_port: 0
+# Legacy single-port behaviour: user port also accepts privileged frames.
+tx_accept_privileged: false
 egress_port: 9001
 shard_bits: 2
 mc_scope: "site"

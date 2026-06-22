@@ -187,6 +187,27 @@ Both transports share the same forwarding pipeline; they can run simultaneously.
 If eBGP is enabled, the ingress interface IP (or BGP VIP) is announced via BGP.
 See [bgp.md](bgp.md).
 
+### Miner ingress (privileged frames)
+
+The user ports above are transaction-only. Block announcements (BRC-131),
+coinbase (BRC-133), and subtree data (BRC-132) are privileged control-plane
+frames that egress to a broadcast group every subscriber receives, so they may
+originate only from miner-tier peers. The proxy accepts them on a **separate**
+ingress port, disabled by default:
+
+```yaml
+miner_listen_port: 9000       # UDP miner ingress (privileged frames); 0 = disabled
+miner_tcp_listen_port: 0      # TCP miner ingress; 0 = disabled
+tx_accept_privileged: false   # true reverts the user port to legacy accept-all
+```
+
+The proxy gate drops privileged frames on the user port regardless, but the
+miner port **must** additionally be reachable only by miner-tier sources —
+enforce this at the host firewall / provider security group (allow the miner
+port only from the miner tunnel CIDRs), since `ingress-infra` does not manage a
+host firewall itself. The user port (8725) stays open to all senders. See
+[bsv-multicast DESIGN.md § Ingress Authorization](https://github.com/lightwebinc/bsv-multicast/blob/main/DESIGN.md#ingress-authorization-miner-tier-gate).
+
 ## Dedup backend connectivity
 
 The tier-2 ingress dedup backend (`txid_dedup_backend`) is an out-of-band TCP
