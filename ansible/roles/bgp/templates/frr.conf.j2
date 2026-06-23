@@ -25,6 +25,7 @@ router bgp {{ bgp_local_as }}
 {% if bgp_peer_ip | length > 0 and bgp_prefix | length > 0 %}
  !
  address-family ipv4 unicast
+  neighbor {{ bgp_peer_ip }} activate
 {% for prefix in bgp_prefix %}
   network {{ prefix }}
 {% endfor %}
@@ -35,6 +36,7 @@ router bgp {{ bgp_local_as }}
 {% if bgp_peer_ip6 | length > 0 and bgp_prefix6 | length > 0 %}
  !
  address-family ipv6 unicast
+  neighbor {{ bgp_peer_ip6 }} activate
 {% for prefix in bgp_prefix6 %}
   network {{ prefix }}
 {% endfor %}
