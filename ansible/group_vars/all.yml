@@ -35,6 +35,10 @@ miner_tcp_listen_port: 0
 # Legacy single-port behaviour: user port also accepts privileged frames.
 tx_accept_privileged: false
 egress_port: 9001
+# IPV6_MULTICAST_HOPS on egress. 1 = single L2 segment (binary default,
+# non-breaking). Set to 64 for a routed / ip6gre-mesh fabric so egress
+# multicast frames survive past the first hop (cross-tunnel).
+proxy_egress_hoplimit: 1
 shard_bits: 2
 mc_scope: "site"
 mc_group_id: "0x000B"

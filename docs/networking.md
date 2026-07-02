@@ -124,6 +124,17 @@ mc_route_prefix: "ff05:0:0:1234::/64"   # explicit prefix, skips auto-derivation
 
 Leave `mc_route_prefix: ""` (the default) to use the auto-derived scope prefix.
 
+### Egress hop limit (routed / ip6gre mesh)
+
+The proxy sets `IPV6_MULTICAST_HOPS` on its egress socket from `proxy_egress_hoplimit`
+(rendered as `EGRESS_HOPLIMIT`). The default is `1` (a single L2 segment, matching the
+binary default); on a routed or `ip6gre`-mesh fabric raise it to `64` so egress multicast
+frames survive past the first hop and reach cross-tunnel receivers:
+
+```yaml
+proxy_egress_hoplimit: 64   # routed / ip6gre mesh; default 1 dies at hop 1
+```
+
 ### Multicast route — Ubuntu 24.04
 
 The route is injected as a `routes:` stanza in the egress interface's netplan file
