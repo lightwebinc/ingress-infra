@@ -32,14 +32,15 @@ all:
           bgp_peer_ip: 198.51.100.254
 
     # Example group for GRE-egress nodes
+    # The fabric is IPv6-only: ip6gre endpoints are IPv6 addresses.
     # ingress_nodes_gre:
     #   vars:
     #     egress_mode: gre
-    #     gre_remote_ip: "198.51.100.1"
+    #     gre_remote_ip6: "2001:db8:a::254"
     #   hosts:
     #     node-03:
     #       ansible_host: 203.0.113.30
-    #       gre_local_ip: 203.0.113.30
+    #       gre_local_ip6: "2001:db8:a::3"
     #       gre_inner_ipv6: "2001:db8:2::3/64"
 
     # For local lab / CI testing, use the Docker harness in the

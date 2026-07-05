@@ -253,13 +253,17 @@ module "ingress_nodes" {
   ssh_user             = "ubuntu"
   ssh_private_key_path = var.ssh_private_key
 
+  listen_port     = var.listen_port
   shard_bits      = var.shard_bits
   egress_mode     = var.egress_mode
   egress_iface    = var.egress_iface
   mc_route_prefix = var.mc_route_prefix
 
+  # ip6gre endpoints must be IPv6 (the fabric is IPv6-only). Use the
+  # instance's primary IPv6 address as the local endpoint — GRE egress on
+  # EC2 requires the VPC's IPv6 addressing (EIPs are IPv4-only).
   gre_remote_ip6 = var.gre_remote_ip6
-  gre_local_ip6  = local.node_ips[count.index]
+  gre_local_ip6  = length(aws_instance.ingress_node[count.index].ipv6_addresses) > 0 ? aws_instance.ingress_node[count.index].ipv6_addresses[0] : ""
   gre_inner_ipv6 = ""
 
   enable_bgp    = var.enable_bgp

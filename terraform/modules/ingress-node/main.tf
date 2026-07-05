@@ -21,7 +21,7 @@ locals {
     {
       proxy_repo      = var.proxy_repo
       proxy_version   = var.proxy_version
-      listen_port     = tostring(var.listen_port)
+      udp_listen_port = tostring(var.listen_port)
       egress_port     = tostring(var.egress_port)
       shard_bits      = tostring(var.shard_bits)
       mc_scope        = var.mc_scope

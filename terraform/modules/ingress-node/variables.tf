@@ -141,7 +141,7 @@ variable "host_ip" {
 }
 
 variable "listen_port" {
-  description = "UDP port for incoming BSV transaction frames"
+  description = "UDP port for incoming BSV transaction frames (passed to Ansible as udp_listen_port)"
   type        = number
   default     = 8725
 }
@@ -177,9 +177,9 @@ variable "proxy_repo" {
 }
 
 variable "proxy_version" {
-  description = "Git ref (branch, tag, or SHA) to check out"
+  description = "Git ref (branch, tag, or SHA) to check out; pin to the latest shard-proxy release"
   type        = string
-  default     = "main"
+  default     = "v1.13.0"
 }
 
 variable "shard_bits" {

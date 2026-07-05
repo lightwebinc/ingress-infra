@@ -69,8 +69,10 @@ The Ansible `common` role does not manage `ufw` rules — add rules for your sit
 must be reachable:
 
 | Port | Protocol | Direction | Purpose |
-|------|----------|-----------|---------------------------------------|
+|-------------------------------|----------|-----------|--------------------------------------------------------------------------------------------|
 | 8725 | UDP | inbound | shard-proxy ingress |
+| `tcp_listen_port` (if set) | TCP | inbound | Optional TCP ingress (0 = disabled) |
+| `miner_listen_port` (if set) | UDP | inbound | Miner ingress (privileged frames) — **allowlist to miner-tier source CIDRs only** |
 | 179 | TCP | in+out | BGP (if `enable_bgp: true`) |
 | 9100 | TCP | inbound | Prometheus metrics / health endpoints |
 

@@ -65,58 +65,15 @@ Host-level variables override `group_vars/all.yml`.
 
 ## Variables reference
 
-All variables with defaults live in `group_vars/all.yml`.
+**`group_vars/all.yml` is the canonical variables reference** — every variable
+ships there with a default and an inline comment (build source, ports, miner
+ingress gate, PoW gate, BRC-142 coalescing, SSM source mode, dedup backend,
+networking, BGP). Override per-host in the inventory. Topic guides:
 
-### Proxy
-
-| Variable | Default | Description |
-|---------------------|----------------------------|-------------------------------------------------------------------------------------------------------|
-| `proxy_repo` | (GitHub URL) | git URL of shard-proxy source |
-| `proxy_version` | `main` | git ref (branch, tag, or SHA) to check out |
-| `proxy_install_dir` | `/opt/shard-proxy` | Clone and build destination |
-| `proxy_bin_dir` | `/usr/local/bin` | Where to install the compiled binary |
-| `listen_addr` | `[::]` | Bind address for incoming frames |
-| `udp_listen_port` | `8725` | UDP ingress port |
-| `tcp_listen_port` | `0` | TCP ingress port for reliable delivery (0 = disabled) |
-| `egress_port` | `9001` | UDP egress port for multicast groups |
-| `shard_bits` | `2` | Bit width of shard key (0–12; must match the rest of the fabric) |
-| `mc_scope` | `site` | Multicast scope: link / site / org / global |
-| `mc_group_id` | `"0x000B"` | IANA group-id (bytes 12–13); default = IANA Bitcoin allocation `FF0X::B` |
-| `num_workers` | `0` | Worker count (0 = runtime.NumCPU) |
-| `metrics_addr` | `:9100` | HTTP address for /metrics /healthz /readyz |
-| `otlp_endpoint` | `""` | OTLP gRPC endpoint (empty = disabled) |
-| `drain_timeout` | `"0s"` | Pre-drain delay before closing sockets on shutdown; set to `≥` LB health-check interval in production |
+- Egress interfaces, GRE, multicast routing, hop limit, miner ingress, dedup backend — [networking.md](networking.md)
+- eBGP / iBGP, health-gated announce, `bgp_health_path` — [bgp.md](bgp.md)
 
 > **`TimeoutStopSec` relationship:** `systemd` sends `SIGKILL` after `TimeoutStopSec` if the service has not exited. Ensure `TimeoutStopSec > drain_timeout + 15s` (OTLP flush + drain buffer). The default service unit sets `TimeoutStopSec=30`, which is sufficient for `drain_timeout ≤ 15s`.
-
-### Networking
-
-| Variable | Default | Description |
-|------------------|------------|-------------------------------------------------------|
-| `egress_mode` | `ethernet` | `ethernet` or `gre` |
-| `egress_iface` | `eth1` | Interface name(s) — list or comma string |
-| `gre_local_ip6` | `""` | Local IPv6 address for the GRE tunnel (gre mode only) |
-| `gre_remote_ip6` | `""` | Remote IPv6 GRE endpoint address |
-| `gre_iface` | `gre6-bsp` | GRE tunnel interface name |
-| `gre_inner_ipv6` | `""` | IPv6 address/prefix for the GRE interface |
-
-### BGP
-
-| Variable | Default | Description |
-|-----------------|---------|-------------------------------------------------|
-| `enable_bgp` | `false` | Enable eBGP |
-| `bgp_daemon` | `bird2` | `bird2` or `frr` |
-| `bgp_prefix` | `[]` | IPv4 BGP prefixes announced by all nodes (list) |
-| `bgp_vip` | `""` | IPv4 loopback BGP VIP |
-| `bgp_prefix6` | `[]` | IPv6 BGP prefixes announced by all nodes (list) |
-| `bgp_vip6` | `""` | IPv6 loopback BGP VIP |
-| `bgp_local_as` | `65001` | Local ASN |
-| `bgp_peer_as` | `65000` | Upstream provider ASN |
-| `bgp_peer_ip` | `""` | Upstream BGP peer IP |
-| `bgp_router_id` | `""` | BGP router ID (defaults to primary IPv4) |
-| `bgp_hold_time` | `90` | BGP hold time (seconds) |
-| `bgp_keepalive` | `30` | BGP keepalive interval (seconds) |
-| `bgp_password` | `""` | Optional MD5 session password |
 
 ---
 
@@ -172,10 +129,13 @@ ansible-playbook -i inventory/hosts.yml site.yml --tags perf-tuning
 To pull a new version and rebuild:
 
 ```bash
-ansible-playbook -i inventory/hosts.yml site.yml --tags proxy -e proxy_version=v1.2.0
+ansible-playbook -i inventory/hosts.yml site.yml --tags proxy -e proxy_version=v1.13.0
 ```
 
 The role will git-fetch, check out the new ref, run `go build`, copy the binary, and restart the service.
+The build is stat-guarded: if a binary already exists in `proxy_install_dir` it is not rebuilt unless
+`proxy_force_build: true` is set. To skip clone+build entirely and push a locally pre-built binary,
+set `proxy_local_binary` to its local path.
 
 ---
 

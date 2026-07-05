@@ -18,7 +18,7 @@ metrics_allowed_cidrs = ["0.0.0.0/0"]
 allocate_eips = false
 
 # Proxy
-listen_port  = 8725
+listen_port  = 8725   # UDP ingress port (SG rule + Ansible udp_listen_port)
 shard_bits   = 2
 egress_mode  = "ethernet"
 egress_iface = "eth1"

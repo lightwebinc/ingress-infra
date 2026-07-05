@@ -8,11 +8,17 @@
 # shard-proxy source and build
 # ------------------------------------------------------------
 proxy_repo: "https://github.com/lightwebinc/shard-proxy.git"
-proxy_version: "main"
+# Pin to the latest shard-proxy release tag; avoid "main" in production.
+proxy_version: "v1.13.0"
 proxy_install_dir: "/opt/shard-proxy"
 proxy_bin_dir: "/usr/local/bin"
 proxy_user: "shard-proxy"
 proxy_group: "shard-proxy"
+# Push a locally pre-built binary instead of clone+build (empty = build from
+# source on the host). Set to a local path, e.g. "files/shard-proxy-freebsd".
+proxy_local_binary: ""
+# Force a rebuild even when a binary already exists in proxy_install_dir.
+proxy_force_build: false
 
 # Go toolchain version (used when building from source)
 go_version: "1.25.10"
@@ -34,31 +40,54 @@ miner_listen_port: 0
 miner_tcp_listen_port: 0
 # Legacy single-port behaviour: user port also accepts privileged frames.
 tx_accept_privileged: false
+# Permissionless PoW gate on BRC-131 block announces (validates work, not
+# identity). min_pow_bits = compact nBits floor ("0" = self-consistency only).
+require_block_pow: false
+min_pow_bits: "0"
 egress_port: 9001
 # IPV6_MULTICAST_HOPS on egress. 1 = single L2 segment (binary default,
 # non-breaking). Set to 64 for a routed / ip6gre-mesh fabric so egress
 # multicast frames survive past the first hop (cross-tunnel).
 proxy_egress_hoplimit: 1
+# IPV6_MULTICAST_LOOP on egress. Only needed on collapsed/mesh router nodes
+# so locally-originated multicast is forwarded by the kernel MFC.
+egress_multicast_loop: false
 shard_bits: 2
 mc_scope: "site"
 mc_group_id: "0x000B"
+# Multicast addressing model: asm (default) | ssm (FF3x::/32 per RFC 4607;
+# requires PIM-SSM in the fabric). bind_source is required and MUST be a
+# unique IPv6 literal per replica when source_mode is ssm.
+source_mode: "asm"
+bind_source: ""
+# Authoritatively stamp the BRC HashKey from the observed packet source IP.
+# Set false only behind a source-rewriting load balancer.
+stamp_source: true
 num_workers: 0
+# Datagrams per recvmmsg syscall (1 = per-packet legacy path).
+recv_batch: 32
 metrics_addr: ":9100"
 otlp_endpoint: ""
 otlp_interval: "30s"
-# Unified logging — see bsv-multicast/docs/UnifiedLogging/unified-logging-plan.md
+# Unified logging — see shard-common/docs/logging.md
 log_format: "json"            # text | json (json for fleet aggregation; collector phase is deferred)
 log_level: "info"             # debug|info|warn|error; runtime-togglable via POST /loglevel + SIGHUP
 trace_sampling: 0             # 0..1 trace head sampling (0 = off; exports via otlp_endpoint; control-plane only)
 drain_timeout: "0s"           # Pre-drain delay on shutdown; set to ≥ LB health-check interval in production
 frag_mtu: 0                   # BRC-130 fragmentation MTU (0 = disabled)
+# BRC-142 frame coalescing — pack many small same-(group,subtree) txs per
+# datagram to cut fabric pps. Coalesce at the ORIGIN, i.e. this ingress tier.
+coalesce: false               # opt-in (binary default off)
+coalesce_max_bytes: 1500      # max bundle datagram size (1500 Ethernet, 9000 jumbo)
+coalesce_max_members: 0       # max member txs per bundle (0 = MTU-bound)
+coalesce_carry_txid: false    # carry per-member TxID (dedup/billing) vs recompute
 proxy_debug: false
 
 # Two-tier ingress TxID deduplication (proxy-side)
 # tier-1: in-process LRU (always active when txid_dedup_local_cap > 0)
 # tier-2: modular shard-common/cache backend SETNX (memory|redis|aerospike)
 # Set txid_dedup_local_cap: 0 to disable ingress dedup entirely.
-# See bsv-multicast/docs/ModularCacheBackend/modular-cache-backend.md
+# See shard-common/docs/cache-backend.md
 txid_dedup_local_cap: 1048576   # tier-1 LRU capacity; 0 = disable
 txid_dedup_backend: ""          # redis|aerospike|memory|none; empty infers redis when addr set, else none
 txid_dedup_redis_addr: ""       # Redis/Valkey/Dragonfly addr; empty = local-only

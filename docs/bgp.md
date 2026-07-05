@@ -41,6 +41,13 @@ bgp_hold_time: 90
 bgp_keepalive: 30
 
 bgp_password: ""                  # optional MD5 session password
+
+# Health path the bsp-bgp-check timer probes to enable/withdraw the VIP:
+#   /healthz (default) — liveness: withdraw only when the proxy is dead
+#   /readyz            — readiness: withdraw at drain START (returns 503 for
+#                        the whole drain_timeout window), so an anycast node
+#                        sheds traffic to its peers before it stops
+bgp_health_path: "/healthz"
 ```
 
 ---
@@ -131,9 +138,13 @@ The `bgp` role installs a health-check script (`/usr/local/bin/bsp-bgp-check.sh`
 - **Healthy** — re-enables both BGP sessions (no-op if they were already up).
 - **Unhealthy** — disables both sessions, triggering immediate prefix withdrawal.
 
+The probe URL is built from `metrics_addr` + `bgp_health_path`
+(default `http://127.0.0.1:9100/healthz`; set `bgp_health_path: /readyz` for
+graceful anycast drain — see Variables above).
+
 ```bash
 # /usr/local/bin/bsp-bgp-check.sh (BIRD2 path)
-if curl -sf http://127.0.0.1:9100/healthz > /dev/null 2>&1; then
+if curl -sf "http://127.0.0.1:9100${BGP_HEALTH_PATH}" > /dev/null 2>&1; then
   birdc 'enable protocol upstream4' > /dev/null 2>&1 || true
   birdc 'enable protocol upstream6' > /dev/null 2>&1 || true
 else
@@ -217,9 +228,12 @@ bgpd_enable="YES"
 
 ### Service check integration (FRR)
 
+The same `metrics_addr` + `bgp_health_path` probe URL applies (see the BIRD2
+section above).
+
 ```bash
 # /usr/local/bin/bsp-bgp-check.sh (FRR path)
-if curl -sf http://127.0.0.1:9100/healthz > /dev/null 2>&1; then
+if curl -sf "http://127.0.0.1:9100${BGP_HEALTH_PATH}" > /dev/null 2>&1; then
   # Re-enable sessions shut down by a previous health failure
   vtysh -c "configure terminal" -c "router bgp $AS" -c "no neighbor $PEER_IP shutdown"
   vtysh -c "configure terminal" -c "router bgp $AS" -c "no neighbor $PEER_IP6 shutdown"

@@ -35,14 +35,15 @@ status_cmd="shard_proxy_status"
 
 shard_proxy_prestart()
 {
-    # Load environment from config file
+    # Load environment from config file. `set -a` auto-exports every
+    # variable the config renders (EGRESS_HOPLIMIT, LOG_*, TRACE_SAMPLING,
+    # DRAIN_TIMEOUT, FRAG_MTU, TXID_DEDUP_*, COALESCE*, ...), so new knobs
+    # never need to be added to an export list here.
     if [ -f "${shard_proxy_config}" ]; then
+        set -a
         . "${shard_proxy_config}"
+        set +a
     fi
-    export LISTEN_ADDR UDP_LISTEN_PORT TCP_LISTEN_PORT EGRESS_PORT MULTICAST_IF SHARD_BITS
-    export MINER_LISTEN_PORT MINER_TCP_LISTEN_PORT TX_ACCEPT_PRIVILEGED
-    export MC_SCOPE MC_GROUP_ID NUM_WORKERS METRICS_ADDR
-    export OTLP_ENDPOINT OTLP_INTERVAL DEBUG
 
     # Add IPv6 multicast route
     /sbin/route -6 add -net ff00::/8 -interface {{ egress_iface if egress_iface is string else egress_iface[0] }} 2>/dev/null || true

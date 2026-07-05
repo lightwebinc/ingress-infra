@@ -125,7 +125,7 @@ variable "key_name" {
 }
 
 variable "listen_port" {
-  description = "UDP port for incoming BSV transaction frames"
+  description = "UDP port for incoming BSV transaction frames (opened in the SG and passed to Ansible as udp_listen_port)"
   type        = number
   default     = 8725
 }
