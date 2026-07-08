@@ -203,21 +203,22 @@ See [bgp.md](bgp.md).
 The user ports above are transaction-only. Block announcements (BRC-131),
 coinbase (BRC-133), and subtree data (BRC-132) are privileged control-plane
 frames that egress to a broadcast group every subscriber receives, so they may
-originate only from miner-tier peers. The proxy accepts them on a **separate**
-ingress port, disabled by default:
+originate only from miner-tier peers. They are no longer submitted as multicast
+frames (the miner multicast port is deprecated): blocks and subtrees arrive as
+header-stripped **BRC-144** / **BRC-143** push frames on dedicated TCP ports,
+disabled by default:
 
 ```yaml
-miner_listen_port: 9000       # UDP miner ingress (privileged frames); 0 = disabled
-miner_tcp_listen_port: 0      # TCP miner ingress; 0 = disabled
-tx_accept_privileged: false   # true reverts the user port to legacy accept-all
+subtree_listen_port: 8726     # TCP BRC-143 subtree push ingest; 0 = disabled
+block_listen_port: 8727       # TCP BRC-144 block push ingest; 0 = disabled
 ```
 
-The proxy gate drops privileged frames on the user port regardless, but the
-miner port **must** additionally be reachable only by miner-tier sources —
-enforce this at the host firewall / provider security group (allow the miner
-port only from the miner tunnel CIDRs), since `ingress-infra` does not manage a
-host firewall itself. The user port (8725) stays open to all senders. See
-[bsv-multicast DESIGN.md § Ingress Authorization](https://github.com/lightwebinc/bsv-multicast/blob/main/DESIGN.md#ingress-authorization-miner-tier-gate).
+The proxy reframes each into the fabric internally. These push ports **must** be
+reachable only by miner-tier sources — enforce this at the host firewall /
+provider security group (allow them only from the miner tunnel CIDRs, tunnel-
+bound), since `ingress-infra` does not manage a host firewall itself. Only the
+transaction port (8725) stays open to all senders. See
+[bsv-multicast architecture.md § Teranode Relationship](https://github.com/lightwebinc/bsv-multicast/blob/main/multicast-skills/architecture.md).
 
 ## Dedup backend connectivity
 

@@ -72,7 +72,7 @@ must be reachable:
 |-------------------------------|----------|-----------|--------------------------------------------------------------------------------------------|
 | 8725 | UDP | inbound | shard-proxy ingress |
 | `tcp_listen_port` (if set) | TCP | inbound | Optional TCP ingress (0 = disabled) |
-| `miner_listen_port` (if set) | UDP | inbound | Miner ingress (privileged frames) — **allowlist to miner-tier source CIDRs only** |
+| `subtree_listen_port` / `block_listen_port` (if set) | TCP | inbound | Push ingest (BRC-143 subtree / BRC-144 block) — **tunnel-bound; allowlist to miner-tier source CIDRs only** |
 | 179 | TCP | in+out | BGP (if `enable_bgp: true`) |
 | 9100 | TCP | inbound | Prometheus metrics / health endpoints |
 

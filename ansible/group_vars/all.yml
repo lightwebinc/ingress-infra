@@ -31,15 +31,14 @@ go_install_dir: "/usr/local/go"
 listen_addr: "[::]"
 udp_listen_port: 8725
 tcp_listen_port: 0
-# Miner-tier ingress gate. The user ports above are transaction-only; BRC-131
-# block / BRC-133 coinbase / BRC-132 subtree-data frames are dropped there and
-# may only enter via the miner ingress below. Leave at 0 to ingest
-# transactions only. Restrict the miner port to miner-tier sources at the
-# firewall / provider ACL (see docs/networking.md). 0 = disabled.
-miner_listen_port: 0
-miner_tcp_listen_port: 0
-# Legacy single-port behaviour: user port also accepts privileged frames.
-tx_accept_privileged: false
+# Push-frame ingest (replaces the deprecated miner multicast port, 2026-07-07).
+# The user ports above are transaction-only; blocks and subtrees enter as
+# header-stripped BRC-144 / BRC-143 PUSH frames on dedicated TCP ports, reframed
+# to the fabric internally. Privileged and tunnel-bound — restrict to miner-tier
+# sources at the firewall / provider ACL (see docs/networking.md); only 8725 is
+# public. Standard numbers: 8726 subtree, 8727 block. 0 = disabled.
+subtree_listen_port: 0
+block_listen_port: 0
 # Permissionless PoW gate on BRC-131 block announces (validates work, not
 # identity). min_pow_bits = compact nBits floor ("0" = self-consistency only).
 require_block_pow: false
