@@ -220,6 +220,20 @@ bound), since `ingress-infra` does not manage a host firewall itself. Only the
 transaction port (8725) stays open to all senders. See
 [bsv-multicast architecture.md § Teranode Relationship](https://github.com/lightwebinc/bsv-multicast/blob/main/multicast-skills/architecture.md).
 
+### BRC-148 BEEF object plane
+
+BEEF (`FrameVer 0x09`) is an **open** ingress class — like transactions, not
+like the privileged subtree/block lanes. BEEF submission records (leading
+`0xBEEF` tag) and framed 0x09 frames ride the **public tx port 8725**; no
+firewall change is needed for them. `beef_listen_port` (standard **8728**)
+optionally opens a *dedicated* lane for flow separation / load balancing — if
+enabled, open it as a normal public ingress port (it carries no privileged
+classes). The plane's multicast band is `0x1000`–`0x1FFF` (extended by
+`beef_shard_bits`); deployments that enumerate multicast group ranges (mesh
+`mc_router`, PIM/MLD) must permit join/forward for that band in addition to
+the transaction shard groups (`0x0000`–`0x0FFF`) and control groups
+(`0xF800`+). A `FF3x::/12` SSM range or `ff3e::/16` prefix already covers it.
+
 ## Dedup backend connectivity
 
 The tier-2 ingress dedup backend (`txid_dedup_backend`) is an out-of-band TCP
