@@ -43,10 +43,13 @@ block_listen_port: 0
 # (0xBEEF-tagged) and framed FrameVer 0x09 ride the public tx port 8725
 # regardless of beef_listen_port, which only opens an OPTIONAL dedicated lane
 # (standard 8728) for flow separation / load balancing — never admission.
-# 0 = no dedicated lane. beef_shard_bits (1-12) sizes the plane band
-# (0x1000 + 2^bits groups); beef_max_object_bytes bounds one accepted object.
+# 0 = no dedicated lane. beef_shard_bits (0-12) sizes the plane band
+# (0x1000 + 2^bits groups; 0 = the single-group plane, band base only — a real
+# width, not "unset"); beef_max_object_bytes bounds one accepted object. The
+# width MUST match every listener and retry endpoint on the plane, so it tracks
+# the binary default rather than a repo-local one.
 beef_listen_port: 0
-beef_shard_bits: 4
+beef_shard_bits: 0
 beef_max_object_bytes: 1048576
 # Permissionless PoW gate on BRC-131 block announces (validates work, not
 # identity). DEFAULT ON — matches the shard-proxy binary default
