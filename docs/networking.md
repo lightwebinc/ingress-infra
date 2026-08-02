@@ -218,7 +218,7 @@ reachable only by miner-tier sources — enforce this at the host firewall /
 provider security group (allow them only from the miner tunnel CIDRs, tunnel-
 bound), since `ingress-infra` does not manage a host firewall itself. Only the
 transaction port (8725) stays open to all senders. See
-[bsv-multicast architecture.md § Teranode Relationship](https://github.com/lightwebinc/bsv-multicast/blob/main/multicast-skills/architecture.md).
+[bsv-multicast DESIGN.md § Ingress Authorization](https://github.com/lightwebinc/bsv-multicast/blob/main/DESIGN.md#ingress-authorization-miner-tier-gate).
 
 ### BRC-148 BEEF object plane
 

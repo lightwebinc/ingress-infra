@@ -66,11 +66,11 @@ Host-level variables override `group_vars/all.yml`.
 ## Variables reference
 
 **`group_vars/all.yml` is the canonical variables reference** — every variable
-ships there with a default and an inline comment (build source, ports, miner
-ingress gate, PoW gate, BRC-142 coalescing, SSM source mode, dedup backend,
+ships there with a default and an inline comment (build source, ports,
+push-frame ingest (subtree/block), PoW gate, BRC-142 coalescing, SSM source mode, dedup backend,
 networking, BGP). Override per-host in the inventory. Topic guides:
 
-- Egress interfaces, GRE, multicast routing, hop limit, miner ingress, dedup backend — [networking.md](networking.md)
+- Egress interfaces, GRE, multicast routing, hop limit, push-frame ingest (subtree/block), dedup backend — [networking.md](networking.md)
 - eBGP / iBGP, health-gated announce, `bgp_health_path` — [bgp.md](bgp.md)
 
 > **`TimeoutStopSec` relationship:** `systemd` sends `SIGKILL` after `TimeoutStopSec` if the service has not exited. Ensure `TimeoutStopSec > drain_timeout + 15s` (OTLP flush + drain buffer). The default service unit sets `TimeoutStopSec=30`, which is sufficient for `drain_timeout ≤ 15s`.
@@ -86,8 +86,9 @@ networking, BGP). Override per-host in the inventory. Topic guides:
 | `shard-proxy` | Clone, build, install binary, configure service unit |
 | `networking` | Ethernet or GRE egress interface, IPv6 multicast routing |
 | `bgp` | BIRD2 or FRR install, config template, health-check timer |
+| `bgp-ibgp` | iBGP daemon on upstream peer nodes (separate playbook: `bgp-ibgp.yml`) |
 
-Roles are applied in the order listed by `site.yml`. The `bgp` role is skipped when `enable_bgp: false`.
+Roles are applied in the order listed by `site.yml`. The `bgp` role is skipped when `enable_bgp: false`. The `bgp-ibgp` role runs via its own playbook (`ansible-playbook -i inventory/hosts.yml bgp-ibgp.yml`), not `site.yml`.
 
 ### perf-tuning role
 
