@@ -62,7 +62,7 @@
 
 - name: Build shard-proxy binary
   ansible.builtin.command:
-    cmd: "{{ go_install_dir }}/bin/go build -buildvcs=false -o {{ proxy_install_dir }}/shard-proxy ."
+    cmd: "{{ go_install_dir }}/bin/go build -buildvcs=false -ldflags \"-s -w -X github.com/lightwebinc/shard-proxy/metrics.Version={{ proxy_version }}\" -o {{ proxy_install_dir }}/shard-proxy ."
     chdir: "{{ proxy_install_dir }}"
   environment:
     PATH: "{{ go_install_dir }}/bin:{{ ansible_env.PATH }}"
