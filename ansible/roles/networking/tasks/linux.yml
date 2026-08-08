@@ -11,6 +11,21 @@
     - net.ipv6.conf.all.forwarding
     - net.ipv6.conf.all.mc_forwarding
 
+# Ubuntu preinstalls netplan; Debian does not. The role owns its presence so
+# the netplan templates below (and `netplan apply`) work on both.
+- name: Install netplan (Debian family)
+  ansible.builtin.apt:
+    name: netplan.io
+    state: present
+  when: ansible_os_family == 'Debian'
+
+- name: Enable systemd-networkd (netplan renderer backend)
+  ansible.builtin.systemd:
+    name: systemd-networkd
+    enabled: true
+    state: started
+  when: ansible_os_family == 'Debian'
+
 - name: Deploy netplan config for ethernet egress
   ansible.builtin.template:
     src: netplan-ethernet.yaml.j2

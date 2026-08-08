@@ -101,4 +101,5 @@ internet ──BGP──► node-A ──GRE──┐
 | OS | Service manager | Network config |
 |--------------|-----------------|------------------------|
 | Ubuntu 24.04 | systemd | Netplan / ip commands |
+| Debian 13 | systemd | Netplan (installed by role) / ip commands |
 | FreeBSD 14 | rc.d | rc.conf / ifconfig/gre |

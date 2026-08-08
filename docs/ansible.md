@@ -5,7 +5,7 @@
 - Ansible 2.15+
 - Python 3.9+ on the control machine
 - SSH access to target hosts with a user that has `sudo` / root privileges
-- Supported target OS: Ubuntu 24.04 or FreeBSD 14
+- Supported target OS: Ubuntu 24.04, Debian 13, or FreeBSD 14
 
 Install Ansible dependencies:
 
