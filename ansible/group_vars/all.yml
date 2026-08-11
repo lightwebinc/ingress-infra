@@ -91,7 +91,12 @@ log_format: "json"            # text | json (json for fleet aggregation; collect
 log_level: "info"             # debug|info|warn|error; runtime-togglable via POST /loglevel + SIGHUP
 trace_sampling: 0             # 0..1 trace head sampling (0 = off; exports via otlp_endpoint; control-plane only)
 drain_timeout: "0s"           # Pre-drain delay on shutdown; set to ≥ LB health-check interval in production
-frag_mtu: 0                   # BRC-130 fragmentation MTU (0 = disabled)
+# BRC-130 fragmentation MTU. ON by default — 0 does NOT mean "send frames
+# unfragmented", it means every payload above (mtu-140) becomes a single oversize
+# datagram the fabric cannot carry: a silent 1360-byte ceiling at MTU 1500, below
+# every subtree and block frame. Set to the SMALLEST MTU on the multicast egress
+# path — the ip6gre inner MTU (underlay-100) on a tunnelled fabric, not the 1500 NIC.
+frag_mtu: 1400
 # BRC-142 frame coalescing — pack many small same-(group,subtree) txs per
 # datagram to cut fabric pps. Coalesce at the ORIGIN, i.e. this ingress tier.
 coalesce: false               # opt-in (binary default off)
