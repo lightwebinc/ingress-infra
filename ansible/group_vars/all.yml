@@ -9,7 +9,7 @@
 # ------------------------------------------------------------
 proxy_repo: "https://github.com/lightwebinc/shard-proxy.git"
 # Pin to the latest shard-proxy release tag; avoid "main" in production.
-proxy_version: "v1.25.1"
+proxy_version: "v1.30.0"
 proxy_install_dir: "/opt/shard-proxy"
 proxy_bin_dir: "/usr/local/bin"
 proxy_user: "shard-proxy"

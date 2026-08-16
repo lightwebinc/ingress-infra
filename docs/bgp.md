@@ -153,7 +153,7 @@ else
 fi
 ```
 
-Run every 10 seconds via a systemd timer (Ubuntu) or periodic cron (FreeBSD).
+Run every 10 seconds via a systemd timer (Ubuntu/Debian); on FreeBSD via cron, every minute.
 
 ---
 

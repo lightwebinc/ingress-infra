@@ -106,8 +106,8 @@ inline comments. Highlights:
 | `perf_tuning_grub_cmdline` | `true` | Adds `intel_idle.max_cstate=1` to GRUB (reboot required) |
 | `perf_tuning_disable_irqbalance` | `true` | Stops + masks `irqbalance` (conflicts with manual IRQ affinity) |
 
-The same role ships identically in `listener-infra` and
-`retransmission-infra`.
+The same role ships in `listener-infra` (identical) and
+`retransmission-infra` (adapted to its shared retry-endpoint play).
 
 ---
 
@@ -130,7 +130,7 @@ ansible-playbook -i inventory/hosts.yml site.yml --tags perf-tuning
 To pull a new version and rebuild:
 
 ```bash
-ansible-playbook -i inventory/hosts.yml site.yml --tags proxy -e proxy_version=v1.25.1
+ansible-playbook -i inventory/hosts.yml site.yml --tags proxy -e proxy_version=v1.30.0
 ```
 
 The role will git-fetch, check out the new ref, run `go build`, copy the binary, and restart the service.

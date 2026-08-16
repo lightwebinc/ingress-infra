@@ -53,7 +53,7 @@ shard_proxy_start()
 {
     shard_proxy_prestart
     /usr/sbin/daemon -f -p "${pidfile}" -u "${shard_proxy_user}" \
-        ${command} >> "${shard_proxy_logfile}" 2>&1
+        -o "${shard_proxy_logfile}" ${command}
     echo "shard_proxy started."
 }
 

@@ -34,8 +34,8 @@ sudo service shard_proxy start
 sudo service shard_proxy status
 sudo service shard_proxy restart
 
-# Logs (via syslog)
-sudo tail -f /var/log/messages | grep shard_proxy
+# Logs
+sudo tail -f /var/log/shard_proxy.log
 ```
 
 ## Networking
@@ -98,7 +98,7 @@ must be reachable:
 | `/usr/local/bin/shard-proxy` | Compiled binary |
 | `/usr/local/etc/shard-proxy.conf` | Environment variable config |
 | `/usr/local/etc/rc.d/shard_proxy` | rc.d service script |
-| `/usr/local/shard-proxy/` | Source clone and build directory |
+| `/opt/shard-proxy/` | Source clone and build directory |
 | `/usr/local/etc/bird/bird.conf` | BIRD2 config (if enabled) |
 | `/usr/local/etc/frr/frr.conf` | FRR config (if enabled) |
 | `/etc/rc.conf` | Interface and service settings |
