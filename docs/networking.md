@@ -27,25 +27,31 @@ egress_iface: eth1        # interface name on target host
 
 ### Ubuntu 24.04 — Netplan snippet
 
-The `networking` role writes `/etc/netplan/60-ingress-infra.yaml`:
+The `networking` role writes `/etc/netplan/60-ingress-infra.yaml` (dual-stack
+DHCP/SLAAC on the egress NIC plus the scope-derived multicast route; assign a
+static fabric address by other means if your fabric has no RA/DHCPv6):
 
 ```yaml
 network:
   version: 2
   ethernets:
     eth1:
-      dhcp4: false
-      dhcp6: false
-      addresses:
-        - "2001:db8:1::1/64"
+      dhcp4: true
+      dhcp6: true
+      accept-ra: true
+      routes:
+        - to: "ff05::/16"   # matches mc_scope: site
+          scope: link
 ```
 
 ### FreeBSD 14 — rc.conf snippet
 
-The role appends to `/etc/rc.conf`:
+The role sets the egress NIC to DHCP + SLAAC in `/etc/rc.conf` (static fabric
+addressing is left to the operator):
 
 ```text
-ifconfig_vtnet1_ipv6="inet6 2001:db8:1::1 prefixlen 64"
+ifconfig_vtnet1="DHCP"
+ifconfig_vtnet1_ipv6="inet6 accept_rtadv"
 ```
 
 ---
@@ -176,7 +182,7 @@ egress_iface:
   - gre0
 ```
 
-The role joins the list into a comma-separated string and passes it to the `-iface` flag.
+The role joins the list into a comma-separated string and renders it as `MULTICAST_IF` (the env equivalent of the `-iface` flag); the multicast route and the rc.d / systemd pre-start route use the first entry.
 
 ---
 

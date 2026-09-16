@@ -11,7 +11,7 @@
 
 | Package / component | Source | Notes |
 |-----------------------|----------------------|--------------------------------------|
-| `build-essential` | apt | gcc, make, etc. for Go CGO |
+| `build-essential` | apt | gcc, make, etc. (build dependency; the Go build itself runs with `CGO_ENABLED=0`) |
 | `git` | apt | clone shard-proxy |
 | `curl` | apt | health-check script |
 | Go toolchain | go.dev tarball | version set by `go_version` variable |

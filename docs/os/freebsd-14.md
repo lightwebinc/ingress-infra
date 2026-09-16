@@ -105,7 +105,7 @@ must be reachable:
 
 ## Notes
 
-- FreeBSD uses `gmake` instead of `make` for the Go build. The role passes `MAKE=gmake`.
+- The binary is built by a direct `go build` (no Makefile is invoked); `gmake` is installed with the other build dependencies but is not used by the role.
 - GRE tunnels use `gif0` (IPv6-in-IPv6, `if_gif` kernel module), not `gre0`. The fabric is IPv6-only.
 - FRR config is in `/usr/local/etc/frr/` on FreeBSD; daemon selection uses rc.conf vars (`frr_enable`, `zebra_enable`, `bgpd_enable`) instead of the Linux `/etc/frr/daemons` file.
 - The Go binary is built as a static executable (`CGO_ENABLED=0`), so no shared library dependencies.

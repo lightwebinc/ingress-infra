@@ -81,7 +81,7 @@ networking, BGP). Override per-host in the inventory. Topic guides:
 
 | Role | Purpose |
 |-----------------------|-----------------------------------------------------------|
-| `common` | OS packages, Go toolchain install, build dependencies |
+| `common` | OS packages, Go toolchain install, build dependencies; journald cap + scheduled disk reclaim (Linux); opt-in OS patching (`--tags os_update`) |
 | `perf-tuning` | High-PPS host tuning: UDP buffers, busy-poll, txqueuelen, deep C-state disable, irqbalance off |
 | `shard-proxy` | Clone, build, install binary, configure service unit |
 | `networking` | Ethernet or GRE egress interface, IPv6 multicast routing |
@@ -89,6 +89,30 @@ networking, BGP). Override per-host in the inventory. Topic guides:
 | `bgp-ibgp` | iBGP daemon on upstream peer nodes (separate playbook: `bgp-ibgp.yml`) |
 
 Roles are applied in the order listed by `site.yml`. The `bgp` role is skipped when `enable_bgp: false`. The `bgp-ibgp` role runs via its own playbook (`ansible-playbook -i inventory/hosts.yml bgp-ibgp.yml`), not `site.yml`.
+
+### common role
+
+Besides packages and the Go toolchain, `common` keeps the root filesystem
+bounded on Linux hosts (journald `SystemMaxUse` drop-in plus a
+`node-disk-maintenance.timer` that reclaims the apt cache and stale Go build
+caches) and carries the opt-in patch path: `ansible-playbook site.yml --tags
+os_update` dist-upgrades Debian-family hosts (rebooting when
+`/var/run/reboot-required` appears) and runs `freebsd-update` + `pkg upgrade`
+on FreeBSD (pending reboots are reported, never performed). Knobs live in
+`roles/common/defaults/main.yml`:
+
+| Variable | Default | Effect |
+|----------|---------|--------|
+| `common_disk_maintenance` | `true` | Install the reclaim timer; `false` removes it |
+| `common_disk_maintenance_oncalendar` | `daily` | systemd `OnCalendar` for the timer |
+| `common_disk_maintenance_splay_sec` | `3600` | `RandomizedDelaySec` so nodes do not fire in lockstep |
+| `common_gocache_max_age_days` | `7` | Go build caches touched within this window are kept |
+| `common_journal_max_use` | `300M` | journald `SystemMaxUse` |
+| `common_journal_keep_free` | `1G` | journald `SystemKeepFree` |
+| `common_journal_max_retention` | `2week` | journald `MaxRetentionSec` |
+
+The reclaim script drops a node_exporter textfile under
+`node_exporter_textfile_dir` (default `/var/lib/node_exporter/textfile_collector`).
 
 ### perf-tuning role
 
