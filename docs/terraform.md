@@ -121,6 +121,15 @@ The common proxy/network/BGP knobs are **first-class inputs** with defaults —
 `gre_local_ip6` / `gre_remote_ip6` / `gre_inner_ipv6`, and the `bgp_*`
 variables. Anything else goes through `extra_ansible_vars`.
 
+### Version pin coupling
+
+Every first-class input is passed as `--extra-vars`, which **outrank**
+`ansible/group_vars/all.yml`. `proxy_version` is therefore pinned twice: the
+`variables.tf` default must equal the `proxy_version` in `group_vars/all.yml`
+(`v1.37.0` today). Move both in the same change — a lagging default (or `main`)
+silently deploys a different build from Terraform than a plain `ansible-playbook`
+run does, with nothing in the output saying so.
+
 The module writes a per-host inventory file (`local_file`), then uses a
 `null_resource` with a **`local-exec`** provisioner to run `ansible-playbook`
 from the machine running Terraform (no remote-exec):

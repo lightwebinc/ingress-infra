@@ -110,9 +110,10 @@ on FreeBSD (pending reboots are reported, never performed). Knobs live in
 | `common_journal_max_use` | `300M` | journald `SystemMaxUse` |
 | `common_journal_keep_free` | `1G` | journald `SystemKeepFree` |
 | `common_journal_max_retention` | `2week` | journald `MaxRetentionSec` |
+| `node_exporter_textfile_dir` | `/var/lib/node_exporter/textfile_collector` | Where the reclaim script drops its node_exporter textfile metric |
 
 The reclaim script drops a node_exporter textfile under
-`node_exporter_textfile_dir` (default `/var/lib/node_exporter/textfile_collector`).
+`node_exporter_textfile_dir`.
 
 ### perf-tuning role
 
@@ -154,7 +155,7 @@ ansible-playbook -i inventory/hosts.yml site.yml --tags perf-tuning
 To pull a new version and rebuild:
 
 ```bash
-ansible-playbook -i inventory/hosts.yml site.yml --tags proxy -e proxy_version=v1.30.0
+ansible-playbook -i inventory/hosts.yml site.yml --tags proxy -e proxy_version=v1.37.0
 ```
 
 The role will git-fetch, check out the new ref, run `go build`, copy the binary, and restart the service.

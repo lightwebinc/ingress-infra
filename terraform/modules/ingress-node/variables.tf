@@ -179,7 +179,10 @@ variable "proxy_repo" {
 variable "proxy_version" {
   description = "Git ref (branch, tag, or SHA) to check out; pin to the latest shard-proxy release"
   type        = string
-  default     = "v1.13.0"
+  # Keep in step with `proxy_version` in ansible/group_vars/all.yml. The module
+  # passes this as --extra-vars, which outranks group_vars, so a default that
+  # lags (or "main") silently deploys a different build than a plain Ansible run.
+  default = "v1.37.0"
 }
 
 variable "shard_bits" {
