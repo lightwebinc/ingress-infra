@@ -50,8 +50,8 @@ and individually replaceable.
 
 Deploys `shard-proxy`, which handles BRC-12, BRC-124/BRC-128 (tx frames),
 BRC-130 (fragmentation), BRC-131 (block announce), BRC-132 (subtree data),
-BRC-133 (coinbase), BRC-134 (anchor transactions), and BRC-142 (coalesced
-bundle frames). Frame formats, shard derivation, subtree filtering,
+BRC-133 (standalone coinbase, deprecated), BRC-134 (anchor transactions),
+and BRC-142 (coalesced bundle frames). Frame formats, shard derivation, subtree filtering,
 and HashKey/SeqNum stamping are documented in the service and project repos:
 
 - [shard-proxy — Architecture](https://github.com/lightwebinc/shard-proxy/blob/main/docs/architecture.md)

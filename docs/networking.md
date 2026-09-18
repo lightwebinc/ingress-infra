@@ -206,9 +206,10 @@ See [bgp.md](bgp.md).
 
 ### Miner ingress (privileged frames)
 
-The user ports above are transaction-only. Block announcements (BRC-131),
-coinbase (BRC-133), and subtree data (BRC-132) are privileged control-plane
-frames that egress to a broadcast group every subscriber receives, so they may
+The user ports above are transaction-only. Block announcements (BRC-131,
+which carry the coinbase inline), the deprecated standalone coinbase frame
+(BRC-133), and subtree data (BRC-132) are privileged control-plane frames
+that egress to a broadcast group every subscriber receives, so they may
 originate only from miner-tier peers. They are no longer submitted as multicast
 frames (the miner multicast port is deprecated): blocks and subtrees arrive as
 header-stripped **BRC-144** / **BRC-143** push frames on dedicated TCP ports,
