@@ -178,5 +178,5 @@ For container-based local labs and CI testing, use the Go Docker harness in
 [multicast-test](https://github.com/lightwebinc/multicast-test). For
 Kubernetes deployment, see
 [multicast-kube-infra](https://github.com/lightwebinc/multicast-kube-infra)
-and the [shard-proxy-helm](https://github.com/lightwebinc/shard-proxy-helm)
+and the [charts/shard-proxy](https://github.com/lightwebinc/charts/tree/main/charts/shard-proxy)
 chart.
