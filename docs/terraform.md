@@ -1,46 +1,13 @@
 # Terraform
 
-## Overview
+Module and example structure, requirements, the Ansible hand-off, running an
+example and adding a cloud are documented once in
+[Terraform layout](https://github.com/lightwebinc/bsv-multicast/blob/main/docs/infra/terraform-layout.md). This page covers the ingress-specific
+modules (`ingress-node`, `bgp-anycast`) and examples.
 
-The Terraform layer is split into reusable **modules** and deployment **examples**:
+## Generic example
 
-```text
-terraform/
-├── modules/
-│   ├── ingress-node/       Cloud-agnostic: generates an inventory, runs Ansible via local-exec
-│   └── bgp-anycast/        BGP config helper (passes vars to Ansible)
-└── examples/
-    ├── generic/            Any SSH-accessible host (no cloud provider)
-    └── aws-ec2/            AWS: VPC, SG, EC2 Ubuntu 24.04, optional EIP
-```
-
-The `ingress-node` module is the foundation. Cloud-specific examples add provider resources (VPC,
-SG, EC2, etc.) and pass the resulting host IP into the module.
-
----
-
-## Requirements
-
-- Terraform 1.9+ **or OpenTofu 1.9+** (fully compatible; install OpenTofu via `https://get.opentofu.org/install-opentofu.sh`)
-- SSH key pair with access to target hosts
-- Ansible installed on the machine running `terraform apply` / `tofu apply`
-
----
-
-## Generic (cloud-agnostic) example
-
-Use this when you provision hosts yourself (bare metal, any cloud, colocated server).
-
-```bash
-cd terraform/examples/generic/
-
-cp terraform.tfvars.example terraform.tfvars
-$EDITOR terraform.tfvars
-
-terraform init
-terraform plan
-terraform apply
-```
+`terraform/examples/generic/` provisions hosts you already have.
 
 `terraform.tfvars.example`:
 
@@ -66,17 +33,6 @@ enable_bgp   = false
 
 Provisions a VPC, security group, EC2 instance(s) running Ubuntu 24.04, and optionally an Elastic
 IP for stable inbound addressing.
-
-```bash
-cd terraform/examples/aws-ec2/
-
-cp terraform.tfvars.example terraform.tfvars
-$EDITOR terraform.tfvars
-
-terraform init
-terraform plan
-terraform apply
-```
 
 `terraform.tfvars.example`:
 
@@ -123,34 +79,10 @@ variables. Anything else goes through `extra_ansible_vars`.
 
 ### Version pin coupling
 
-Every first-class input is passed as `--extra-vars`, which **outrank**
-`ansible/group_vars/all.yml`. `proxy_version` is therefore pinned twice: the
-`variables.tf` default must equal the `proxy_version` in `group_vars/all.yml`
-(the single source of truth for the current release). Move both in the same change — a lagging default (or `main`)
-silently deploys a different build from Terraform than a plain `ansible-playbook`
-run does, with nothing in the output saying so.
-
-The module writes a per-host inventory file (`local_file`), then uses a
-`null_resource` with a **`local-exec`** provisioner to run `ansible-playbook`
-from the machine running Terraform (no remote-exec):
-
-```hcl
-resource "null_resource" "provision" {
-  triggers = {
-    host_ip    = var.host_ip
-    extra_vars = jsonencode(local.ansible_extra_vars)
-  }
-
-  provisioner "local-exec" {
-    command = <<-EOT
-      ansible-playbook \
-        -i ${local.inventory_path} \
-        ${local.ansible_playbook} \
-        --extra-vars '${jsonencode(local.ansible_extra_vars)}'
-    EOT
-  }
-}
-```
+`proxy_version` in `modules/ingress-node/variables.tf` must equal
+`proxy_version` in `ansible/group_vars/all.yml`, the single source of truth;
+move both in one change. See
+[version pin coupling](https://github.com/lightwebinc/bsv-multicast/blob/main/docs/infra/terraform-layout.md#version-pin-coupling).
 
 **Outputs**: `host_ip`, `inventory_path`.
 
@@ -173,16 +105,3 @@ module "bgp" {
   bgp_peer_ip    = "203.0.113.254"
 }
 ```
-
----
-
-## Expanding to other clouds
-
-To add a new cloud provider (e.g., Hetzner, GCP, DigitalOcean):
-
-1. Create `terraform/examples/<provider>/`.
-2. Add provider resources to provision an instance.
-3. Pass the instance's public IP into `module "ingress-node"`.
-4. Follow the pattern in `examples/aws-ec2/main.tf`.
-
-The `ingress-node` module itself requires no changes.

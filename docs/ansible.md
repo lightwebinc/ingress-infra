@@ -1,38 +1,9 @@
 # Ansible
 
-## Requirements
-
-- Ansible 2.15+
-- Python 3.9+ on the control machine
-- SSH access to target hosts with a user that has `sudo` / root privileges
-- Supported target OS: Ubuntu 24.04, Debian 13, or FreeBSD 14
-
-Install Ansible dependencies:
-
-```bash
-pip install ansible
-ansible-galaxy collection install community.general ansible.posix
-```
-
----
-
-## Quick start
-
-```bash
-cd ansible/
-
-# 1. Copy and edit the inventory
-cp inventory/hosts.example.yml inventory/hosts.yml
-$EDITOR inventory/hosts.yml
-
-# 2. Review and override variables
-$EDITOR group_vars/all.yml
-
-# 3. Run the full playbook
-ansible-playbook -i inventory/hosts.yml site.yml
-```
-
----
+Shared workflow, requirements, variable precedence, version pins, the `common`
+and `perf-tuning` roles, upgrades and known issues are documented once in
+[Ansible operations](https://github.com/lightwebinc/bsv-multicast/blob/main/docs/infra/ansible-operations.md). This page covers what is
+specific to `shard-proxy`.
 
 ## Inventory
 
@@ -63,20 +34,6 @@ Host-level variables override `group_vars/all.yml`.
 
 ---
 
-## Variables reference
-
-**`group_vars/all.yml` is the canonical variables reference** — every variable
-ships there with a default and an inline comment (build source, ports,
-push-frame ingest (subtree/block), PoW gate, BRC-142 coalescing, SSM source mode, dedup backend,
-networking, BGP). Override per-host in the inventory. Topic guides:
-
-- Egress interfaces, GRE, multicast routing, hop limit, push-frame ingest (subtree/block), dedup backend — [networking.md](networking.md)
-- eBGP / iBGP, health-gated announce, `bgp_health_path` — [bgp.md](bgp.md)
-
-> **`TimeoutStopSec` relationship:** `systemd` sends `SIGKILL` after `TimeoutStopSec` if the service has not exited. Ensure `TimeoutStopSec > drain_timeout + 15s` (OTLP flush + drain buffer). The default service unit sets `TimeoutStopSec=30`, which is sufficient for `drain_timeout ≤ 15s`.
-
----
-
 ## Roles
 
 | Role | Purpose |
@@ -89,52 +46,6 @@ networking, BGP). Override per-host in the inventory. Topic guides:
 | `bgp-ibgp` | iBGP daemon on upstream peer nodes (separate playbook: `bgp-ibgp.yml`) |
 
 Roles are applied in the order listed by `site.yml`. The `bgp` role is skipped when `enable_bgp: false`. The `bgp-ibgp` role runs via its own playbook (`ansible-playbook -i inventory/hosts.yml bgp-ibgp.yml`), not `site.yml`.
-
-### common role
-
-Besides packages and the Go toolchain, `common` keeps the root filesystem
-bounded on Linux hosts (journald `SystemMaxUse` drop-in plus a
-`node-disk-maintenance.timer` that reclaims the apt cache and stale Go build
-caches) and carries the opt-in patch path: `ansible-playbook site.yml --tags
-os_update` dist-upgrades Debian-family hosts (rebooting when
-`/var/run/reboot-required` appears) and runs `freebsd-update` + `pkg upgrade`
-on FreeBSD (pending reboots are reported, never performed). Knobs live in
-`roles/common/defaults/main.yml`:
-
-| Variable | Default | Effect |
-|----------|---------|--------|
-| `common_disk_maintenance` | `true` | Install the reclaim timer; `false` removes it |
-| `common_disk_maintenance_oncalendar` | `daily` | systemd `OnCalendar` for the timer |
-| `common_disk_maintenance_splay_sec` | `3600` | `RandomizedDelaySec` so nodes do not fire in lockstep |
-| `common_gocache_max_age_days` | `7` | Go build caches touched within this window are kept |
-| `common_journal_max_use` | `300M` | journald `SystemMaxUse` |
-| `common_journal_keep_free` | `1G` | journald `SystemKeepFree` |
-| `common_journal_max_retention` | `2week` | journald `MaxRetentionSec` |
-| `node_exporter_textfile_dir` | `/var/lib/node_exporter/textfile_collector` | Where the reclaim script drops its node_exporter textfile metric |
-
-The reclaim script drops a node_exporter textfile under
-`node_exporter_textfile_dir`.
-
-### perf-tuning role
-
-Applies the host-level network/CPU tunings measured to raise small-packet
-(200–256 B Bitcoin P2PKH) proxy throughput. All knobs live in
-`roles/perf-tuning/defaults/main.yml`; the role is self-documenting via
-inline comments. Highlights:
-
-| Variable | Default | Effect |
-|----------|---------|--------|
-| `perf_tuning_enabled` | `true` | Master switch; set `false` for stock OS behaviour |
-| `perf_tuning_sysctls` | UDP rmem/wmem 256 MiB, `busy_poll`/`busy_read` 50 µs, backlog 1 M | `/etc/sysctl.d/65-perf-tuning.conf` |
-| `perf_tuning_txqueuelen` | `10000` | systemd-networkd `.link` drop-in on the egress NIC |
-| `perf_tuning_disable_cstates` | `true` | Disables C3–C10 at runtime + boot (systemd oneshot) |
-| `perf_tuning_grub_cmdline` | `true` | Adds `intel_idle.max_cstate=1` to GRUB (reboot required) |
-| `perf_tuning_disable_irqbalance` | `true` | Stops + masks `irqbalance` (conflicts with manual IRQ affinity) |
-
-The same role ships in `listener-infra` (identical) and
-`retransmission-infra` (adapted to its shared retry-endpoint play).
-
----
 
 ## Tags
 
@@ -152,33 +63,120 @@ ansible-playbook -i inventory/hosts.yml site.yml --tags perf-tuning
 
 ## Upgrading the proxy
 
-To pull a new version and rebuild:
-
-```bash
-ansible-playbook -i inventory/hosts.yml site.yml --tags proxy -e proxy_version=<tag>
-```
-
-The default is `proxy_version` in `ansible/group_vars/all.yml`; pass `<tag>` only to override it.
-
-The role will git-fetch, check out the new ref, run `go build`, copy the binary, and restart the service.
-The build is stat-guarded: if a binary already exists in `proxy_install_dir` it is not rebuilt unless
-`proxy_force_build: true` is set. To skip clone+build entirely and push a locally pre-built binary,
-set `proxy_local_binary` to its local path.
+Bump `proxy_version` in `group_vars/all.yml` (and the Terraform default, see
+[terraform.md](terraform.md)) and run `--tags proxy`. Forced rebuilds
+(`proxy_force_build`) and pre-built binaries (`proxy_local_binary`) are
+described in [Ansible operations](https://github.com/lightwebinc/bsv-multicast/blob/main/docs/infra/ansible-operations.md#build-upgrade-and-pre-built-binaries).
 
 ---
 
-## Idempotency
+## Service variables
 
-All roles are fully idempotent. Re-running the playbook is safe and will only apply changes when the
-system state differs from the declared configuration.
+Every variable in `group_vars/all.yml`, with its default. Topic guides:
+egress interfaces, GRE, multicast routing, push-frame ingest and dedup backend in
+[networking.md](networking.md); eBGP / iBGP and `bgp_health_path` in
+[bgp.md](bgp.md).
 
----
+### shard-proxy source and build
 
-## Lab and Kubernetes deployment
+| Variable | Default | Notes |
+|---|---|---|
+| `proxy_repo` | `https://github.com/lightwebinc/shard-proxy.git` | Git source of the service |
+| `proxy_version` | pinned in `group_vars/all.yml` | Release tag to build; see [version pins](https://github.com/lightwebinc/bsv-multicast/blob/main/docs/infra/ansible-operations.md#version-pins) |
+| `proxy_install_dir` | `/opt/shard-proxy` | Clone and build directory |
+| `proxy_bin_dir` | `/usr/local/bin` | Binary install directory |
+| `proxy_user` | `shard-proxy` | Service user |
+| `proxy_group` | `shard-proxy` | Service group |
+| `proxy_local_binary` | `""` | Pre-built local binary to push; empty = clone and build on the host |
+| `proxy_force_build` | `false` | Rebuild even when a binary already exists |
+| `go_version` | pinned in `group_vars/all.yml` | Go toolchain; must be at or above the `go` directive in the service go.mod at the pinned tag |
+| `go_install_dir` | `/usr/local/go` | Go toolchain install directory |
 
-For container-based local labs and CI testing, use the Go Docker harness in
-[multicast-test](https://github.com/lightwebinc/multicast-test). For
-Kubernetes deployment, see
-[multicast-kube-infra](https://github.com/lightwebinc/multicast-kube-infra)
-and the [charts/shard-proxy](https://github.com/lightwebinc/charts/tree/main/charts/shard-proxy)
-chart.
+### Proxy runtime configuration
+
+| Variable | Default | Notes |
+|---|---|---|
+| `listen_addr` | `[::]` |  |
+| `udp_listen_port` | `8725` |  |
+| `tcp_listen_port` | `0` |  |
+| `subtree_listen_port` | `0` | Push-frame ingest (replaces the deprecated miner multicast port, 2026-07-07). The user ports above are transaction-only; blocks and subtrees enter as header-stripped BRC-144 / BRC-143 PUSH frames on dedicated TCP ... |
+| `block_listen_port` | `0` |  |
+| `beef_listen_port` | `0` | BRC-148 BEEF object plane. BEEF is an OPEN class: submission records (0xBEEF-tagged) and framed FrameVer 0x09 ride the public tx port 8725 regardless of beef_listen_port, which only opens an OPTIONAL dedicated lane ... |
+| `beef_shard_bits` | `0` |  |
+| `beef_max_object_bytes` | `1048576` |  |
+| `require_block_pow` | `true` | Permissionless PoW gate on BRC-131 block announces (validates work, not identity). DEFAULT ON — matches the shard-proxy binary default (-require-block-pow / REQUIRE_BLOCK_POW = true). Set false only for lab fixtures ... |
+| `min_pow_bits` | `0` | Difficulty floor for the gate, in Bitcoin compact nBits form: "0x1d00ffff"  mainnet / testnet "0x207fffff"  devnet / regtest "0"           no floor — header self-consistency only (still gated) |
+| `egress_port` | `9001` |  |
+| `proxy_egress_hoplimit` | `1` | IPV6_MULTICAST_HOPS on egress. 1 = single L2 segment (binary default, non-breaking). Set to 64 for a routed / ip6gre-mesh fabric so egress multicast frames survive past the first hop (cross-tunnel). |
+| `egress_multicast_loop` | `false` | IPV6_MULTICAST_LOOP on egress. Only needed on collapsed/mesh router nodes so locally-originated multicast is forwarded by the kernel MFC. |
+| `shard_bits` | `2` |  |
+| `mc_scope` | `site` |  |
+| `mc_group_id` | `0x000B` |  |
+| `source_mode` | `asm` | Multicast addressing model: asm (default) \| ssm (FF3x::/32 per RFC 4607; requires PIM-SSM in the fabric). bind_source is required and MUST be a unique IPv6 literal per replica when source_mode is ssm. |
+| `bind_source` | `""` |  |
+| `stamp_source` | `true` | Authoritatively stamp the BRC HashKey from the observed packet source IP. Set false only behind a source-rewriting load balancer. |
+| `num_workers` | `0` |  |
+| `recv_batch` | `32` | Datagrams per recvmmsg syscall (1 = per-packet legacy path). |
+| `metrics_addr` | `:9100` |  |
+| `otlp_endpoint` | `""` |  |
+| `otlp_interval` | `30s` |  |
+| `log_format` | `json` | text \| json (json for fleet aggregation; collector phase is deferred) |
+| `log_level` | `info` | debug\|info\|warn\|error; runtime-togglable via POST /loglevel + SIGHUP |
+| `trace_sampling` | `0` | 0..1 trace head sampling (0 = off; exports via otlp_endpoint; control-plane only) |
+| `drain_timeout` | `0s` | Pre-drain delay on shutdown; set to ≥ LB health-check interval in production |
+| `frag_mtu` | `1400` | BRC-130 fragmentation MTU. ON by default — 0 does NOT mean "send frames unfragmented", it means every payload above (mtu-140) becomes a single oversize datagram the fabric cannot carry: a silent 1360-byte ceiling at ... |
+| `coalesce` | `false` | opt-in (binary default off) |
+| `coalesce_max_bytes` | `1500` | max bundle datagram size (1500 Ethernet, 9000 jumbo) |
+| `coalesce_max_members` | `0` | max member txs per bundle (0 = MTU-bound) |
+| `coalesce_carry_txid` | `false` | carry per-member TxID (dedup/billing) vs recompute |
+| `proxy_debug` | `false` |  |
+| `txid_dedup_local_cap` | `1048576` | tier-1 LRU capacity; 0 = disable |
+| `txid_dedup_backend` | `""` | redis\|aerospike\|memory\|none; empty infers redis when addr set, else none |
+| `txid_dedup_redis_addr` | `""` | Redis/Valkey/Dragonfly addr; empty = local-only |
+| `txid_dedup_aerospike_hosts` | `""` | comma-separated host:port (required when backend=aerospike) |
+| `txid_dedup_aerospike_namespace` | `cache` |  |
+| `txid_dedup_aerospike_set` | `bsp` |  |
+| `txid_dedup_prefix` | `bsp:tx:` | key prefix — must match listener's ingress_set_prefix |
+| `txid_dedup_ttl` | `10m` | tier-2 entry TTL |
+| `proxy_instance_id` | `""` | INSTANCE_ID: OTel service.instance.id (empty = hostname) |
+| `proxy_retry_tee` | `""` | BSP_RETRY_TEE: mirror egress DATA to a co-located retry endpoint's tee, e.g. "[::1]:9001" (collapsed edge) |
+| `verify_subtree_root` | `true` | VERIFY_SUBTREE_ROOT: drop BRC-132 subtrees whose hashes miss the root |
+| `verify_payload_hash` | `false` | VERIFY_PAYLOAD_HASH: check framed TxID against payload |
+| `require_ef` | `false` | REQUIRE_EF: admit Extended Format (BRC-30) submissions only |
+| `allow_stamped_ingress` | `false` | ALLOW_STAMPED_INGRESS: accept already-sequenced frames (relay / spine collect lane) |
+| `ingress_dedup` | `true` | INGRESS_DEDUP: false bypasses ingress TxID dedup entirely |
+| `recv_buf_bytes` | `0` | BSP_RECV_BUF_BYTES: per-worker SO_RCVBUF (0 = worker default) |
+
+### Networking
+
+| Variable | Default | Notes |
+|---|---|---|
+| `egress_mode` | `ethernet` | ethernet \| gre |
+| `egress_iface` | `eth1` | interface name or list of names |
+| `mc_route_prefix` | `""` | Multicast route prefix for the egress interface. Defaults to "" which means auto-derive from mc_scope: link   -> ff02::/16 site   -> ff05::/16 org    -> ff08::/16 global -> ff0e::/16 Override this when using a ... |
+| `gre_local_ip6` | `""` | IPv6 address of the local tunnel endpoint |
+| `gre_remote_ip6` | `""` | IPv6 address of the remote tunnel endpoint |
+| `gre_iface` | `gre6-bsp` | interface name for the tunnel |
+| `gre_inner_ipv6` | `""` | IPv6 address/prefix assigned inside the tunnel |
+
+### BGP (optional)
+
+| Variable | Default | Notes |
+|---|---|---|
+| `enable_bgp` | `false` |  |
+| `bgp_daemon` | `bird2` | bird2 \| frr |
+| `bgp_prefix` | `[]` | IPv4 BGP prefixes announced by all nodes, e.g. ["192.0.2.0/24"] |
+| `bgp_vip` | `""` | IPv4 loopback VIP, e.g. "192.0.2.1" |
+| `bgp_prefix6` | `[]` | IPv6 BGP prefixes announced by all nodes, e.g. ["2001:db8::/48"] |
+| `bgp_vip6` | `""` | IPv6 loopback VIP, e.g. "2001:db8::1" |
+| `bgp_local_as` | `65001` |  |
+| `bgp_peer_as` | `65000` |  |
+| `bgp_peer_ip` | `""` | IPv4 BGP peer address (leave empty if peer is v6-only) |
+| `bgp_peer_ip6` | `""` | IPv6 BGP peer address |
+| `bgp_router_id` | (templated) |  |
+| `bgp_hold_time` | `90` |  |
+| `bgp_keepalive` | `30` |  |
+| `bgp_password` | `""` |  |
+| `bgp_health_path` | `/healthz` | Health path the bsp-bgp-check timer probes to enable/withdraw the anycast VIP. /healthz (liveness) = withdraw when the proxy is dead; /readyz = withdraw at drain start (graceful anycast shed for a hostNetwork proxy ... |
+| `bgp_ibgp_peers` | `[]` | iBGP peers (used by the bgp-ibgp role, playbook: bgp-ibgp.yml) Each entry: { peer_ip: "", peer_ip6: "", description: "" } At least one of peer_ip or peer_ip6 is required per entry. Include both for dual-stack peers. |
+

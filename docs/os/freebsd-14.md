@@ -1,111 +1,38 @@
 # FreeBSD 14
 
-## System requirements
+Packages, rc.d and rc.conf conventions, `gif0` tunnels, FRR differences and
+diagnostics shared by all infra repositories are in the canonical
+[FreeBSD 14 notes](https://github.com/lightwebinc/bsv-multicast/blob/main/docs/infra/os/freebsd-14.md). This page lists what is specific to
+`shard-proxy`.
 
-- FreeBSD 14.0-RELEASE or later
-- IPv6 enabled on the egress interface
-- Internet access for pkg installation and cloning `shard-proxy`
-- `sudo` or root access for the Ansible user
+## Service
 
-## What the Ansible roles install
-
-| Package / component | Source | Notes |
-|-----------------------|-------------------|---------------------------------------------|
-| `gmake` | pkg | GNU make for Go build |
-| `git` | pkg | clone shard-proxy |
-| `curl` | pkg | health-check script |
-| `bash` | pkg | required by some build scripts |
-| Go toolchain | go.dev tarball | version set by `go_version` variable |
-| `shard-proxy` | built from source | binary in `/usr/local/bin/` |
-| `bird2` | pkg (if BGP) | BIRD2 BGP daemon |
-| `frr` | pkg (if BGP) | FRRouting BGP daemon (alternative to BIRD2) |
-
-## Service management
-
-The proxy runs as an **rc.d service** (`shard_proxy`). The rc.d script is templated from
-`roles/shard-proxy/templates/shard_proxy.rc.j2`.
+The rc.d script is rendered from `roles/shard-proxy/templates/shard_proxy.rc.j2`.
 
 ```bash
-# Enable and start
 sudo service shard_proxy enable
 sudo service shard_proxy start
-
-# Status / restart
 sudo service shard_proxy status
-sudo service shard_proxy restart
-
-# Logs
 sudo tail -f /var/log/shard_proxy.log
 ```
 
 ## Networking
 
-- Ingress interface: dual-stack (DHCP + SLAAC), set via `ifconfig_<iface>` and `ifconfig_<iface>_ipv6` in `/etc/rc.conf`.
-- GRE tunnels: IPv6-only (`gif0`), using `cloned_interfaces="gif0"` and `ifconfig_gif0="tunnel <local_ipv6> <remote_ipv6>"` in `/etc/rc.conf`.
-- BGP VIPs: `ifconfig_lo0_alias0` (IPv4) and `ifconfig_lo0_alias1` (IPv6) in `/etc/rc.conf`.
-- IPv4/IPv6 forwarding enabled via `gateway_enable="YES"` and `ipv6_gateway_enable="YES"`.
+- Ingress interface: dual-stack (DHCP + SLAAC) via `ifconfig_<iface>` and
+  `ifconfig_<iface>_ipv6`.
+- BGP VIPs: `ifconfig_lo0_alias0` (IPv4) and `ifconfig_lo0_alias1` (IPv6).
+- Forwarding: `gateway_enable="YES"` and `ipv6_gateway_enable="YES"`.
 
-Apply interface changes without rebooting:
+## Ports
 
-```bash
-sudo service netif restart
-sudo service routing restart
-```
-
-## BGP (BIRD2 or FRR)
-
-Both BIRD2 and FRR are available via `pkg` on FreeBSD 14. The `bgp_daemon` variable selects which
-one is installed and configured by the `bgp` Ansible role.
-
-### BIRD2
-
-```bash
-sudo service bird enable
-sudo service bird start
-sudo birdc show protocols
-sudo birdc show route
-```
-
-### FRR
-
-FRR on FreeBSD uses `/usr/local/etc/frr/frr.conf` and rc.conf daemon flags instead of the
-`/etc/frr/daemons` file used on Linux.
-
-```bash
-sudo service frr enable
-sudo service frr start
-sudo vtysh -c 'show bgp summary'
-sudo vtysh -c 'show bgp ipv6 summary'
-```
-
-## Firewall
-
-The Ansible `common` role does not manage `pf` rules — add rules for your site policy. Ports that
-must be reachable:
-
-| Port | Protocol | Direction | Purpose |
-|-------------------------------|----------|-----------|--------------------------------------------------------------------------------------------|
-| 8725 | UDP | inbound | shard-proxy ingress |
-| `tcp_listen_port` (if set) | TCP | inbound | Optional TCP ingress (0 = disabled) |
-| `subtree_listen_port` / `block_listen_port` (if set) | TCP | inbound | Push ingest (BRC-143 subtree / BRC-144 block) — **tunnel-bound; allowlist to miner-tier source CIDRs only** |
-| 179 | TCP | in+out | BGP (if `enable_bgp: true`) |
-| 9100 | TCP | inbound | Prometheus metrics / health endpoints |
+Same as [Ubuntu](ubuntu-24.04.md#ports); ingress-infra does not manage `pf`.
 
 ## File locations
 
 | Path | Content |
-|-------------------------------------------|----------------------------------|
+|---|---|
 | `/usr/local/bin/shard-proxy` | Compiled binary |
-| `/usr/local/etc/shard-proxy.conf` | Environment variable config |
-| `/usr/local/etc/rc.d/shard_proxy` | rc.d service script |
+| `/usr/local/etc/shard-proxy.conf` | Environment config |
+| `/usr/local/etc/rc.d/shard_proxy` | rc.d script |
 | `/opt/shard-proxy/` | Source clone and build directory |
-| `/usr/local/etc/bird/bird.conf` | BIRD2 config (if enabled) |
-| `/usr/local/etc/frr/frr.conf` | FRR config (if enabled) |
 | `/etc/rc.conf` | Interface and service settings |
-
-## Notes
-
-- The binary is built by a direct `go build` (no Makefile is invoked); `gmake` is installed with the other build dependencies but is not used by the role.
-- GRE tunnels use `gif0` (IPv6-in-IPv6, `if_gif` kernel module), not `gre0`. The fabric is IPv6-only.
-- FRR config is in `/usr/local/etc/frr/` on FreeBSD; daemon selection uses rc.conf vars (`frr_enable`, `zebra_enable`, `bgpd_enable`) instead of the Linux `/etc/frr/daemons` file.
-- The Go binary is built as a static executable (`CGO_ENABLED=0`), so no shared library dependencies.

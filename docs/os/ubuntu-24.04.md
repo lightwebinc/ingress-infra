@@ -1,90 +1,40 @@
 # Ubuntu 24.04
 
-## System requirements
+Packages, systemd and netplan conventions, BGP daemon paths and diagnostics
+shared by all infra repositories are in the canonical
+[Ubuntu 24.04 notes](https://github.com/lightwebinc/bsv-multicast/blob/main/docs/infra/os/ubuntu-24.04.md). This page lists what is specific to
+`shard-proxy`.
 
-- Ubuntu 24.04 LTS (Noble Numbat)
-- IPv6 enabled on the egress interface
-- Internet access for package installation and cloning `shard-proxy`
-- `sudo` access for the Ansible user
-
-## What the Ansible roles install
-
-| Package / component | Source | Notes |
-|-----------------------|----------------------|--------------------------------------|
-| `build-essential` | apt | gcc, make, etc. (build dependency; the Go build itself runs with `CGO_ENABLED=0`) |
-| `git` | apt | clone shard-proxy |
-| `curl` | apt | health-check script |
-| Go toolchain | go.dev tarball | version set by `go_version` variable |
-| `shard-proxy` | built from source | binary in `/usr/local/bin/` |
-| `bird2` or `frr` | apt (if BGP enabled) | BGP daemon |
-
-## Service management
-
-The proxy runs as a **systemd service** (`shard-proxy.service`). The service unit is
-templated from `roles/shard-proxy/templates/shard-proxy.service.j2`.
+## Service
 
 ```bash
-# Status
 sudo systemctl status shard-proxy
-
-# Logs
 sudo journalctl -u shard-proxy -f
-
-# Restart
 sudo systemctl restart shard-proxy
 ```
 
-## Networking
+## Ports
 
-- Egress interface configuration is written to `/etc/netplan/60-ingress-infra.yaml`.
-- GRE tunnels use `/etc/netplan/61-ingress-infra-gre.yaml`.
-- BGP VIP is written to `/etc/netplan/62-ingress-infra-vip.yaml`.
-- IPv6 forwarding is enabled via `/etc/sysctl.d/60-ingress-infra.conf`.
-
-Apply netplan changes manually if needed:
-
-```bash
-sudo netplan apply
-```
-
-## BGP (BIRD2)
-
-```bash
-sudo systemctl status bird
-sudo birdc show protocols
-sudo birdc show route
-```
-
-## BGP (FRR)
-
-```bash
-sudo systemctl status frr
-sudo vtysh -c 'show bgp summary'
-sudo vtysh -c 'show ip bgp'
-```
-
-## Firewall
-
-The Ansible `common` role does not manage `ufw` rules — add rules for your site policy. Ports that
-must be reachable:
+ingress-infra ships no firewall role (the `common` role does not manage
+`ufw`); apply your own site policy. Ports that must be reachable:
 
 | Port | Protocol | Direction | Purpose |
-|-------------------------------|----------|-----------|--------------------------------------------------------------------------------------------|
+|---|---|---|---|
 | 8725 | UDP | inbound | shard-proxy ingress |
 | `tcp_listen_port` (if set) | TCP | inbound | Optional TCP ingress (0 = disabled) |
-| `subtree_listen_port` / `block_listen_port` (if set) | TCP | inbound | Push ingest (BRC-143 subtree / BRC-144 block) — **tunnel-bound; allowlist to miner-tier source CIDRs only** |
+| `subtree_listen_port` / `block_listen_port` (if set) | TCP | inbound | Push ingest (BRC-143 subtree / BRC-144 block); **tunnel-bound, allowlist miner-tier source CIDRs only** |
 | 179 | TCP | in+out | BGP (if `enable_bgp: true`) |
 | 9100 | TCP | inbound | Prometheus metrics / health endpoints |
 
 ## File locations
 
 | Path | Content |
-|---------------------------------------------------|----------------------------------|
+|---|---|
 | `/usr/local/bin/shard-proxy` | Compiled binary |
-| `/etc/shard-proxy/config.env` | Environment variable config file |
+| `/etc/shard-proxy/config.env` | Environment config |
 | `/etc/systemd/system/shard-proxy.service` | systemd unit |
 | `/opt/shard-proxy/` | Source clone and build directory |
-| `/etc/bird/bird.conf` | BIRD2 config (if enabled) |
-| `/etc/frr/frr.conf` | FRR config (if enabled) |
-| `/etc/netplan/60-ingress-infra.yaml` | Egress interface netplan |
-| `/etc/sysctl.d/60-ingress-infra.conf` | IPv6 sysctl settings |
+| `/etc/netplan/60-ingress-infra.yaml` | Egress interface |
+| `/etc/netplan/61-ingress-infra-gre.yaml` | GRE tunnel |
+| `/etc/netplan/62-ingress-infra-vip.yaml` | BGP VIP |
+| `/etc/sysctl.d/60-ingress-infra.conf` | IPv6 sysctls (forwarding) |

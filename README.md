@@ -16,15 +16,10 @@ BSV senders ──UDP/TCP──▶  shard-proxy  ──multicast──▶  FF05:
 
 (ASM group form shown; SSM deployments use `FF35`/`FF3E` — this repo's `group_vars` default is still `asm`.)
 
-## Supported Platforms
+## Platforms
 
-| OS           | Automation | Service Manager |
-| ------------ | ---------- | --------------- |
-| Ubuntu 24.04 | Ansible    | systemd         |
-| Debian 13    | Ansible    | systemd         |
-| FreeBSD 14   | Ansible    | rc.d            |
-| AWS EC2      | Terraform  | systemd         |
-| Any SSH host | Terraform  | generic         |
+Ubuntu 24.04, Debian 13 and FreeBSD 14 via Ansible; AWS EC2 or any SSH host via
+Terraform. See [supported platforms](https://github.com/lightwebinc/bsv-multicast/blob/main/docs/infra/platforms.md).
 
 ## Quick Start
 
@@ -38,6 +33,7 @@ ansible-playbook -i inventory/hosts.yml site.yml
 
 ## Documentation
 
+- [Shared host-deployment docs](https://github.com/lightwebinc/bsv-multicast/blob/main/docs/infra/README.md) (platforms, Ansible operations, Terraform layout, OS notes)
 - [Architecture](docs/architecture.md)
 - [Ansible usage](docs/ansible.md)
 - [Networking (GRE / ethernet)](docs/networking.md)
