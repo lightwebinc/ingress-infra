@@ -123,6 +123,16 @@ txid_dedup_aerospike_set: "bsp"
 txid_dedup_prefix: "bsp:tx:"   # key prefix — must match listener's ingress_set_prefix
 txid_dedup_ttl: "10m"           # tier-2 entry TTL
 
+# Optional knobs (rendered only when changed from the binary default)
+proxy_instance_id: ""          # INSTANCE_ID: OTel service.instance.id (empty = hostname)
+proxy_retry_tee: ""            # BSP_RETRY_TEE: mirror egress DATA to a co-located retry endpoint's tee, e.g. "[::1]:9001" (collapsed edge)
+verify_subtree_root: true      # VERIFY_SUBTREE_ROOT: drop BRC-132 subtrees whose hashes miss the root
+verify_payload_hash: false     # VERIFY_PAYLOAD_HASH: check framed TxID against payload
+require_ef: false              # REQUIRE_EF: admit Extended Format (BRC-30) submissions only
+allow_stamped_ingress: false   # ALLOW_STAMPED_INGRESS: accept already-sequenced frames (relay / spine collect lane)
+ingress_dedup: true            # INGRESS_DEDUP: false bypasses ingress TxID dedup entirely
+recv_buf_bytes: 0              # BSP_RECV_BUF_BYTES: per-worker SO_RCVBUF (0 = worker default)
+
 # ------------------------------------------------------------
 # Networking
 # ------------------------------------------------------------
