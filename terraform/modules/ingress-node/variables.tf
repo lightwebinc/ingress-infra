@@ -182,7 +182,7 @@ variable "proxy_version" {
   # Keep in step with `proxy_version` in ansible/group_vars/all.yml. The module
   # passes this as --extra-vars, which outranks group_vars, so a default that
   # lags (or "main") silently deploys a different build than a plain Ansible run.
-  default = "v1.37.0"
+  default = "v1.40.1"
 }
 
 variable "shard_bits" {

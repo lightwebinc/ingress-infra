@@ -11,7 +11,7 @@ proxy_repo: "https://github.com/lightwebinc/shard-proxy.git"
 # Pin to the latest shard-proxy release tag; avoid "main" in production.
 # Keep terraform/modules/ingress-node/variables.tf `proxy_version` in step:
 # the module passes it as --extra-vars, which outranks this file.
-proxy_version: "v1.37.0"
+proxy_version: "v1.40.1"
 proxy_install_dir: "/opt/shard-proxy"
 proxy_bin_dir: "/usr/local/bin"
 proxy_user: "shard-proxy"
@@ -24,7 +24,7 @@ proxy_force_build: false
 
 # Go toolchain version (used when building from source)
 # Must be >= the `go` directive in shard-proxy's go.mod at proxy_version
-# (v1.37.0 requires 1.26.2); the service builds with golang:1.27 in its own CI.
+# (v1.40.1 requires 1.26.2); the service builds with golang:1.27 in its own CI.
 go_version: "1.27.1"
 go_install_dir: "/usr/local/go"
 

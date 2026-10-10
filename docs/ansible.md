@@ -155,7 +155,7 @@ ansible-playbook -i inventory/hosts.yml site.yml --tags perf-tuning
 To pull a new version and rebuild:
 
 ```bash
-ansible-playbook -i inventory/hosts.yml site.yml --tags proxy -e proxy_version=v1.37.0
+ansible-playbook -i inventory/hosts.yml site.yml --tags proxy -e proxy_version=v1.40.1
 ```
 
 The role will git-fetch, check out the new ref, run `go build`, copy the binary, and restart the service.
