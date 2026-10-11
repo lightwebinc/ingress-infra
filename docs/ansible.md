@@ -112,7 +112,7 @@ egress interfaces, GRE, multicast routing, push-frame ingest and dedup backend i
 | `shard_bits` | `2` |  |
 | `mc_scope` | `site` |  |
 | `mc_group_id` | `0x000B` |  |
-| `source_mode` | `asm` | Multicast addressing model: asm (default) \| ssm (FF3x::/32 per RFC 4607; requires PIM-SSM in the fabric). bind_source is required and MUST be a unique IPv6 literal per replica when source_mode is ssm. |
+| `source_mode` | `ssm` | Multicast addressing model: ssm (default; FF3x::/32 per RFC 4607, requires PIM-SSM in the fabric) \| asm (lab fallback). bind_source is required and MUST be a unique IPv6 literal per replica when source_mode is ssm. |
 | `bind_source` | `""` |  |
 | `stamp_source` | `true` | Authoritatively stamp the BRC HashKey from the observed packet source IP. Set false only behind a source-rewriting load balancer. |
 | `num_workers` | `0` |  |

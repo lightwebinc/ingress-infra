@@ -14,7 +14,7 @@ BSV senders ──UDP/TCP──▶  shard-proxy  ──multicast──▶  FF05:
                           (this repo deploys)                   (subscriber fabric)
 ```
 
-(ASM group form shown; SSM deployments use `FF35`/`FF3E` — this repo's `group_vars` default is still `asm`.)
+(ASM group form shown; SSM deployments use `FF35`/`FF3E` — this repo defaults to `ssm`; set `source_mode: asm` for a lab without PIM-SSM.)
 
 ## Platforms
 
