@@ -30,7 +30,7 @@ all:
 
 Host-level variables override `group_vars/all.yml`.
 
-> **Important — `egress_iface` precedence**: `group_vars/all.yml` defines `egress_iface: eth1` as a default. Because Ansible gives `group_vars/all` higher precedence than inventory group `vars:` blocks, `egress_iface` **must be set per-host** (under `hosts: <name>:`) to take effect. Setting it only in the inventory `vars:` block will silently use the `group_vars/all.yml` default instead.
+> **Important (`egress_iface` precedence):** `group_vars/all.yml` defines `egress_iface: eth1` as a default. Because Ansible gives `group_vars/all` higher precedence than inventory group `vars:` blocks, `egress_iface` **must be set per-host** (under `hosts: <name>:`) to take effect. Setting it only in the inventory `vars:` block will silently use the `group_vars/all.yml` default instead.
 
 ---
 
@@ -99,13 +99,13 @@ egress interfaces, GRE, multicast routing, push-frame ingest and dedup backend i
 | `listen_addr` | `[::]` |  |
 | `udp_listen_port` | `8725` |  |
 | `tcp_listen_port` | `0` |  |
-| `subtree_listen_port` | `0` | Push-frame ingest (replaces the deprecated miner multicast port, 2026-07-07). The user ports above are transaction-only; blocks and subtrees enter as header-stripped BRC-144 / BRC-143 PUSH frames on dedicated TCP ... |
+| `subtree_listen_port` | `0` | Push-frame ingest (replaces the deprecated miner multicast port). The user ports above are transaction-only; blocks and subtrees enter as header-stripped BRC-144 / BRC-143 PUSH frames on dedicated TCP ... |
 | `block_listen_port` | `0` |  |
 | `beef_listen_port` | `0` | BRC-148 BEEF object plane. BEEF is an OPEN class: submission records (0xBEEF-tagged) and framed FrameVer 0x09 ride the public tx port 8725 regardless of beef_listen_port, which only opens an OPTIONAL dedicated lane ... |
 | `beef_shard_bits` | `0` |  |
 | `beef_max_object_bytes` | `1048576` |  |
-| `require_block_pow` | `true` | Permissionless PoW gate on BRC-131 block announces (validates work, not identity). DEFAULT ON — matches the shard-proxy binary default (-require-block-pow / REQUIRE_BLOCK_POW = true). Set false only for lab fixtures ... |
-| `min_pow_bits` | `0` | Difficulty floor for the gate, in Bitcoin compact nBits form: "0x1d00ffff"  mainnet / testnet "0x207fffff"  devnet / regtest "0"           no floor — header self-consistency only (still gated) |
+| `require_block_pow` | `true` | Permissionless PoW gate on BRC-131 block announces (validates work, not identity). DEFAULT ON, matching the shard-proxy binary default (-require-block-pow / REQUIRE_BLOCK_POW = true). Set false only for lab fixtures ... |
+| `min_pow_bits` | `0` | Difficulty floor for the gate, in Bitcoin compact nBits form: "0x1d00ffff"  mainnet / testnet "0x207fffff"  devnet / regtest "0"           no floor: header self-consistency only (still gated) |
 | `egress_port` | `9001` |  |
 | `proxy_egress_hoplimit` | `1` | IPV6_MULTICAST_HOPS on egress. 1 = single L2 segment (binary default, non-breaking). Set to 64 for a routed / ip6gre-mesh fabric so egress multicast frames survive past the first hop (cross-tunnel). |
 | `egress_multicast_loop` | `false` | IPV6_MULTICAST_LOOP on egress. Only needed on collapsed/mesh router nodes so locally-originated multicast is forwarded by the kernel MFC. |
@@ -124,7 +124,7 @@ egress interfaces, GRE, multicast routing, push-frame ingest and dedup backend i
 | `log_level` | `info` | debug\|info\|warn\|error; runtime-togglable via POST /loglevel + SIGHUP |
 | `trace_sampling` | `0` | 0..1 trace head sampling (0 = off; exports via otlp_endpoint; control-plane only) |
 | `drain_timeout` | `0s` | Pre-drain delay on shutdown; set to ≥ LB health-check interval in production |
-| `frag_mtu` | `1400` | BRC-130 fragmentation MTU. ON by default — 0 does NOT mean "send frames unfragmented", it means every payload above (mtu-140) becomes a single oversize datagram the fabric cannot carry: a silent 1360-byte ceiling at ... |
+| `frag_mtu` | `1400` | BRC-130 fragmentation MTU. ON by default; 0 does NOT mean "send frames unfragmented", it means every payload above (mtu-140) becomes a single oversize datagram the fabric cannot carry: a silent 1360-byte ceiling at ... |
 | `coalesce` | `false` | opt-in (binary default off) |
 | `coalesce_max_bytes` | `1500` | max bundle datagram size (1500 Ethernet, 9000 jumbo) |
 | `coalesce_max_members` | `0` | max member txs per bundle (0 = MTU-bound) |
@@ -136,7 +136,7 @@ egress interfaces, GRE, multicast routing, push-frame ingest and dedup backend i
 | `txid_dedup_aerospike_hosts` | `""` | comma-separated host:port (required when backend=aerospike) |
 | `txid_dedup_aerospike_namespace` | `cache` |  |
 | `txid_dedup_aerospike_set` | `bsp` |  |
-| `txid_dedup_prefix` | `bsp:tx:` | key prefix — must match listener's ingress_set_prefix |
+| `txid_dedup_prefix` | `bsp:tx:` | key prefix; must match listener's ingress_set_prefix |
 | `txid_dedup_ttl` | `10m` | tier-2 entry TTL |
 | `proxy_instance_id` | `""` | INSTANCE_ID: OTel service.instance.id (empty = hostname) |
 | `proxy_retry_tee` | `""` | BSP_RETRY_TEE: mirror egress DATA to a co-located retry endpoint's tee, e.g. "[::1]:9001" (collapsed edge) |

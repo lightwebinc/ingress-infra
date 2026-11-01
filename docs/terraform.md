@@ -70,7 +70,7 @@ bgp_prefix  = []
 | `ansible_inventory_path` | string | Where to write the generated inventory (default: per-host file) |
 | `extra_ansible_vars` | map(any) | Additional Ansible extra-vars merged over the first-class inputs |
 
-The common proxy/network/BGP knobs are **first-class inputs** with defaults —
+The common proxy/network/BGP knobs are **first-class inputs** with defaults:
 `proxy_repo`, `proxy_version`, `listen_port` (passed to Ansible as
 `udp_listen_port`), `egress_port`, `shard_bits`, `mc_scope`, `mc_group_id`,
 `mc_route_prefix`, `metrics_addr`, `egress_mode`, `egress_iface`,

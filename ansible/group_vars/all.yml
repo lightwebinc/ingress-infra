@@ -35,10 +35,10 @@ go_install_dir: "/usr/local/go"
 listen_addr: "[::]"
 udp_listen_port: 8725
 tcp_listen_port: 0
-# Push-frame ingest (replaces the deprecated miner multicast port, 2026-07-07).
+# Push-frame ingest (replaces the deprecated miner multicast port).
 # The user ports above are transaction-only; blocks and subtrees enter as
 # header-stripped BRC-144 / BRC-143 PUSH frames on dedicated TCP ports, reframed
-# to the fabric internally. Privileged and tunnel-bound — restrict to miner-tier
+# to the fabric internally. Privileged and tunnel-bound; restrict to miner-tier
 # sources at the firewall / provider ACL (see docs/networking.md); only 8725 is
 # public. Standard numbers: 8726 subtree, 8727 block. 0 = disabled.
 subtree_listen_port: 0
@@ -46,9 +46,9 @@ block_listen_port: 0
 # BRC-148 BEEF object plane. BEEF is an OPEN class: submission records
 # (0xBEEF-tagged) and framed FrameVer 0x09 ride the public tx port 8725
 # regardless of beef_listen_port, which only opens an OPTIONAL dedicated lane
-# (standard 8728) for flow separation / load balancing — never admission.
+# (standard 8728) for flow separation / load balancing, never admission.
 # 0 = no dedicated lane. beef_shard_bits (0-12) sizes the plane band
-# (0x1000 + 2^bits groups; 0 = the single-group plane, band base only — a real
+# (0x1000 + 2^bits groups; 0 = the single-group plane, band base only, a real
 # width, not "unset"); beef_max_object_bytes bounds one accepted object. The
 # width MUST match every listener and retry endpoint on the plane, so it tracks
 # the binary default rather than a repo-local one.
@@ -56,14 +56,14 @@ beef_listen_port: 0
 beef_shard_bits: 0
 beef_max_object_bytes: 1048576
 # Permissionless PoW gate on BRC-131 block announces (validates work, not
-# identity). DEFAULT ON — matches the shard-proxy binary default
+# identity). DEFAULT ON, matching the shard-proxy binary default
 # (-require-block-pow / REQUIRE_BLOCK_POW = true). Set false only for lab
 # fixtures that emit announces carrying no real work.
 require_block_pow: true
 # Difficulty floor for the gate, in Bitcoin compact nBits form:
 #   "0x1d00ffff"  mainnet / testnet
 #   "0x207fffff"  devnet / regtest
-#   "0"           no floor — header self-consistency only (still gated)
+#   "0"           no floor: header self-consistency only (still gated)
 min_pow_bits: "0"
 egress_port: 9001
 # IPV6_MULTICAST_HOPS on egress. 1 = single L2 segment (binary default,
@@ -90,18 +90,18 @@ recv_batch: 32
 metrics_addr: ":9100"
 otlp_endpoint: ""
 otlp_interval: "30s"
-# Unified logging — see shard-common/docs/logging.md
+# Unified logging; see shard-common/docs/logging.md
 log_format: "json"            # text | json (json for fleet aggregation; collector phase is deferred)
 log_level: "info"             # debug|info|warn|error; runtime-togglable via POST /loglevel + SIGHUP
 trace_sampling: 0             # 0..1 trace head sampling (0 = off; exports via otlp_endpoint; control-plane only)
 drain_timeout: "0s"           # Pre-drain delay on shutdown; set to ≥ LB health-check interval in production
-# BRC-130 fragmentation MTU. ON by default — 0 does NOT mean "send frames
+# BRC-130 fragmentation MTU. ON by default; 0 does NOT mean "send frames
 # unfragmented", it means every payload above (mtu-140) becomes a single oversize
 # datagram the fabric cannot carry: a silent 1360-byte ceiling at MTU 1500, below
 # every subtree and block frame. Set to the SMALLEST MTU on the multicast egress
-# path — the ip6gre inner MTU (underlay-100) on a tunnelled fabric, not the 1500 NIC.
+# path: the ip6gre inner MTU (underlay-100) on a tunnelled fabric, not the 1500 NIC.
 frag_mtu: 1400
-# BRC-142 frame coalescing — pack many small same-(group,subtree) txs per
+# BRC-142 frame coalescing: pack many small same-(group,subtree) txs per
 # datagram to cut fabric pps. Coalesce at the ORIGIN, i.e. this ingress tier.
 coalesce: false               # opt-in (binary default off)
 coalesce_max_bytes: 1500      # max bundle datagram size (1500 Ethernet, 9000 jumbo)
@@ -120,7 +120,7 @@ txid_dedup_redis_addr: ""       # Redis/Valkey/Dragonfly addr; empty = local-onl
 txid_dedup_aerospike_hosts: ""  # comma-separated host:port (required when backend=aerospike)
 txid_dedup_aerospike_namespace: "cache"
 txid_dedup_aerospike_set: "bsp"
-txid_dedup_prefix: "bsp:tx:"   # key prefix — must match listener's ingress_set_prefix
+txid_dedup_prefix: "bsp:tx:"   # key prefix; must match listener's ingress_set_prefix
 txid_dedup_ttl: "10m"           # tier-2 entry TTL
 
 # Optional knobs (rendered only when changed from the binary default)

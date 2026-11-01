@@ -54,9 +54,9 @@ BRC-133 (standalone coinbase, deprecated), BRC-134 (anchor transactions),
 and BRC-142 (coalesced bundle frames). Frame formats, shard derivation, subtree filtering,
 and HashKey/SeqNum stamping are documented in the service and project repos:
 
-- [shard-proxy — Architecture](https://github.com/lightwebinc/shard-proxy/blob/main/docs/architecture.md)
+- [shard-proxy: Architecture](https://github.com/lightwebinc/shard-proxy/blob/main/docs/architecture.md)
 - [Wire Protocol Specification](https://github.com/lightwebinc/shard-common/blob/main/docs/protocol.md)
-- [bsv-multicast — DESIGN.md](https://github.com/lightwebinc/bsv-multicast/blob/main/DESIGN.md)
+- [bsv-multicast: DESIGN.md](https://github.com/lightwebinc/bsv-multicast/blob/main/DESIGN.md)
 - BRC specifications: `bsv-multicast/docs/brc-{124,126,127,128,129,130,131,132,133,134,135,139,142,143,144,148,149}-*.md`
 
 ## BGP ingress (optional)

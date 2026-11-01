@@ -7,8 +7,8 @@ shared address and are routed to the topologically nearest node by BGP best-path
 provides:
 
 - **Lowest-latency ingress** for senders without any application-level logic.
-- **Automatic failover** — if a node goes down, its BGP session drops and senders are rerouted.
-- **Horizontal scaling** — add more nodes, each announcing the same prefix.
+- **Automatic failover**: if a node goes down, its BGP session drops and senders are rerouted.
+- **Horizontal scaling**: add more nodes, each announcing the same prefix.
 
 BGP is **optional**. Set `enable_bgp: false` (the default) to run without it.
 
@@ -43,8 +43,8 @@ bgp_keepalive: 30
 bgp_password: ""                  # optional MD5 session password
 
 # Health path the bsp-bgp-check timer probes to enable/withdraw the VIP:
-#   /healthz (default) — liveness: withdraw only when the proxy is dead
-#   /readyz            — readiness: withdraw at drain START (returns 503 for
+#   /healthz (default): liveness; withdraw only when the proxy is dead
+#   /readyz:            readiness; withdraw at drain START (returns 503 for
 #                        the whole drain_timeout window), so an anycast node
 #                        sheds traffic to its peers before it stops
 bgp_health_path: "/healthz"
@@ -70,7 +70,7 @@ node-B (AS 65001) ──eBGP(v4+v6)──►                          (nearest w
 node-C (AS 65001) ──eBGP(v4+v6)──►
 ```
 
-Ingress is **dual-stack** — each node accepts BSV frames on both IPv4 and IPv6. The egress fabric
+Ingress is **dual-stack**: each node accepts BSV frames on both IPv4 and IPv6. The egress fabric
 is **IPv6-only**, using ip6gre tunnels to the multicast switching layer.
 
 ---
@@ -135,12 +135,12 @@ protocol bgp upstream6 {
 
 The `bgp` role installs a health-check script (`/usr/local/bin/bsp-bgp-check.sh`) that:
 
-- **Healthy** — re-enables both BGP sessions (no-op if they were already up).
-- **Unhealthy** — disables both sessions, triggering immediate prefix withdrawal.
+- **Healthy**: re-enables both BGP sessions (no-op if they were already up).
+- **Unhealthy**: disables both sessions, triggering immediate prefix withdrawal.
 
 The probe URL is built from `metrics_addr` + `bgp_health_path`
 (default `http://127.0.0.1:9100/healthz`; set `bgp_health_path: /readyz` for
-graceful anycast drain — see Variables above).
+graceful anycast drain; see Variables above).
 
 ```bash
 # /usr/local/bin/bsp-bgp-check.sh (BIRD2 path)
@@ -238,7 +238,7 @@ if curl -sf "http://127.0.0.1:9100${BGP_HEALTH_PATH}" > /dev/null 2>&1; then
   vtysh -c "configure terminal" -c "router bgp $AS" -c "no neighbor $PEER_IP shutdown"
   vtysh -c "configure terminal" -c "router bgp $AS" -c "no neighbor $PEER_IP6 shutdown"
 else
-  # Shut down sessions — peer withdraws routes it learned from us
+  # Shut down sessions; the peer withdraws routes it learned from us
   vtysh -c "configure terminal" -c "router bgp $AS" -c "neighbor $PEER_IP shutdown"
   vtysh -c "configure terminal" -c "router bgp $AS" -c "neighbor $PEER_IP6 shutdown"
 fi
@@ -252,7 +252,7 @@ When `enable_bgp: true`, the `shard-proxy.service` unit gains two extra directiv
 
 ```ini
 [Unit]
-# Ensures the BGP daemon stops *after* the proxy — so the daemon can process
+# Ensures the BGP daemon stops *after* the proxy, so the daemon can process
 # the withdrawal before it exits.
 Before=bird.service   # or Before=frr.service when bgp_daemon == frr
 
@@ -412,5 +412,5 @@ ifconfig_lo0_alias1="inet6 {{ bgp_vip6 }} prefixlen 128"          # IPv6 VIP
 
 Both daemons support most features on both OSes. Choose based on operational preference:
 
-- `bird2` — simpler config for this use case, BIRD filter language, no PIM/PIM6/MLD support, must be provided by other means if necessary. Not necessary if host is not routing multicast.
-- `frr` — Cisco-like CLI via `vtysh`, familiar for network engineers
+- `bird2`: simpler config for this use case, BIRD filter language; no PIM/PIM6/MLD support, so provide it by other means if the host routes multicast.
+- `frr`: Cisco-like CLI via `vtysh`, familiar for network engineers

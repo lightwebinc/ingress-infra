@@ -25,7 +25,7 @@ egress_mode: ethernet
 egress_iface: eth1        # interface name on target host
 ```
 
-### Ubuntu 24.04 — Netplan snippet
+### Ubuntu 24.04: Netplan snippet
 
 The `networking` role writes `/etc/netplan/60-ingress-infra.yaml` (dual-stack
 DHCP/SLAAC on the egress NIC plus the scope-derived multicast route; assign a
@@ -44,7 +44,7 @@ network:
           scope: link
 ```
 
-### FreeBSD 14 — rc.conf snippet
+### FreeBSD 14: rc.conf snippet
 
 The role sets the egress NIC to DHCP + SLAAC in `/etc/rc.conf` (static fabric
 addressing is left to the operator):
@@ -141,7 +141,7 @@ frames survive past the first hop and reach cross-tunnel receivers:
 proxy_egress_hoplimit: 64   # routed / ip6gre mesh; default 1 dies at hop 1
 ```
 
-### Multicast route — Ubuntu 24.04
+### Multicast route: Ubuntu 24.04
 
 The route is injected as a `routes:` stanza in the egress interface's netplan file
 (`/etc/netplan/60-ingress-infra.yaml` or `61-ingress-infra-gre.yaml`) and applied
@@ -153,7 +153,7 @@ routes:
     scope: link
 ```
 
-### Multicast route — FreeBSD 14
+### Multicast route: FreeBSD 14
 
 The route is persisted via an `ipv6_route_bsp_mcast` entry in `/etc/rc.conf` and applied
 immediately via `route add -inet6`:
@@ -221,7 +221,7 @@ block_listen_port: 8727       # TCP BRC-144 block push ingest; 0 = disabled
 ```
 
 The proxy reframes each into the fabric internally. These push ports **must** be
-reachable only by miner-tier sources — enforce this at the host firewall /
+reachable only by miner-tier sources; enforce this at the host firewall /
 provider security group (allow them only from the miner tunnel CIDRs, tunnel-
 bound), since `ingress-infra` does not manage a host firewall itself. Only the
 transaction port (8725) stays open to all senders. See
@@ -229,11 +229,11 @@ transaction port (8725) stays open to all senders. See
 
 ### BRC-148 BEEF object plane
 
-BEEF (`FrameVer 0x09`) is an **open** ingress class — like transactions, not
+BEEF (`FrameVer 0x09`) is an **open** ingress class, like transactions, not
 like the privileged subtree/block lanes. BEEF submission records (leading
 `0xBEEF` tag) and framed 0x09 frames ride the **public tx port 8725**; no
 firewall change is needed for them. `beef_listen_port` (standard **8728**)
-optionally opens a *dedicated* lane for flow separation / load balancing — if
+optionally opens a *dedicated* lane for flow separation / load balancing; if
 enabled, open it as a normal public ingress port (it carries no privileged
 classes). The plane's multicast band is `0x1000`–`0x1FFF` (extended by
 `beef_shard_bits`); deployments that enumerate multicast group ranges (mesh
@@ -246,6 +246,6 @@ the transaction shard groups (`0x0000`–`0x0FFF`) and control groups
 The tier-2 ingress dedup backend (`txid_dedup_backend`) is an out-of-band TCP
 service on the management network: Redis/Valkey/Dragonfly on 6379, or Aerospike
 Community Edition on 3000 (client). It is independent of the multicast fabric.
-Backend errors fail open — the proxy forwards the frame and records a metric —
+Backend errors fail open (the proxy forwards the frame and records a metric),
 so a backend outage never stops ingress. See
 [shard-common cache backend](https://github.com/lightwebinc/shard-common/blob/main/docs/cache-backend.md).
