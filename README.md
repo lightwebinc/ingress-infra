@@ -10,11 +10,11 @@ Ansible and Terraform automation for deploying
 nodes, the stateless ingress tier of the BSV multicast pipeline.
 
 ```text
-BSV senders ──UDP/TCP──▶  shard-proxy  ──multicast──▶  FF05::<shard>:9001
+BSV senders ──UDP/TCP──▶  shard-proxy  ──multicast──▶  FF05::B:<shard>:9001
                           (this repo deploys)                   (subscriber fabric)
 ```
 
-(ASM group form shown; SSM deployments use `FF35`/`FF3E`. This repo defaults to `ssm`; set `source_mode: asm` for a lab without PIM-SSM.)
+(ASM group form shown; SSM deployments use `FF35`/`FF3E`. This repo defaults to `ssm`; set `source_mode: asm` for a fabric without PIM-SSM.)
 
 ## Platforms
 
