@@ -46,7 +46,7 @@ all:
     # For local lab / CI testing, use the Docker harness in the
     # multicast-test repo. For Kubernetes, see multicast-kube-infra.
 
-    # iBGP upstream peers — run bgp-ibgp.yml against this group
+    # iBGP upstream peers: run bgp-ibgp.yml against this group
     # bgp_ibgp_nodes:
     #   vars:
     #     ansible_user: ubuntu

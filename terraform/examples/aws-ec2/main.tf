@@ -260,7 +260,7 @@ module "ingress_nodes" {
   mc_route_prefix = var.mc_route_prefix
 
   # ip6gre endpoints must be IPv6 (the fabric is IPv6-only). Use the
-  # instance's primary IPv6 address as the local endpoint — GRE egress on
+  # instance's primary IPv6 address as the local endpoint, GRE egress on
   # EC2 requires the VPC's IPv6 addressing (EIPs are IPv4-only).
   gre_remote_ip6 = var.gre_remote_ip6
   gre_local_ip6  = length(aws_instance.ingress_node[count.index].ipv6_addresses) > 0 ? aws_instance.ingress_node[count.index].ipv6_addresses[0] : ""
