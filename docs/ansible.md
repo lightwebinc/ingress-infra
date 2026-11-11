@@ -88,7 +88,7 @@ egress interfaces, GRE, multicast routing, push-frame ingest and dedup backend i
 | `proxy_user` | `shard-proxy` | Service user |
 | `proxy_group` | `shard-proxy` | Service group |
 | `proxy_local_binary` | `""` | Pre-built local binary to push; empty = clone and build on the host |
-| `proxy_force_build` | `false` | Rebuild even when a binary already exists (a binary built with another Go release than `go_version` is always rebuilt) |
+| `proxy_force_build` | `false` | Rebuild even when a binary already exists (a source build made with another Go release than `go_version` is rebuilt; a `proxy_local_binary` is installed as supplied) |
 | `go_version` | pinned in `group_vars/all.yml` | Go toolchain; must be at or above the `go` directive in the service go.mod at the pinned tag |
 | `go_install_dir` | `/usr/local/go` | Go toolchain install directory |
 
