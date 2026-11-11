@@ -94,6 +94,16 @@
     - proxy_local_binary | default('') | length == 0
     - proxy_binary_stat.stat.exists
 
+- name: Read the release the existing binary was built from
+  ansible.builtin.command: "cat {{ proxy_install_dir }}/.built-ref"
+  register: proxy_built_ref
+  changed_when: false
+  check_mode: false
+  failed_when: false
+  when:
+    - proxy_local_binary | default('') | length == 0
+    - proxy_binary_stat.stat.exists
+
 - name: Build shard-proxy binary
   ansible.builtin.command:
     # Folded scalar: the one-line form ran past the 160-char lint limit. Folding
@@ -115,12 +125,23 @@
   changed_when: true
   when:
     - proxy_local_binary | default('') | length == 0
-    # A binary built with another Go release is rebuilt, so a toolchain move
-    # reaches a deployed node without proxy_force_build.
+    # A binary built with another Go release, or from another release of the
+    # source, is rebuilt: a toolchain move or a version pin move reaches a
+    # deployed node without proxy_force_build.
     - >-
       not proxy_binary_stat.stat.exists
       or (proxy_force_build | default(false) | bool)
       or (proxy_binary_go.stdout | default('')).split() | last | default('') != 'go' ~ go_version
+      or (proxy_built_ref.stdout | default('')) | trim != proxy_version
+
+- name: Record the release the binary was built from
+  ansible.builtin.copy:
+    content: "{{ proxy_version }}\n"
+    dest: "{{ proxy_install_dir }}/.built-ref"
+    owner: "{{ proxy_user }}"
+    group: "{{ proxy_group }}"
+    mode: "0644"
+  when: proxy_local_binary | default('') | length == 0
 
 - name: Set ownership on pushed/built binary
   ansible.builtin.file:
