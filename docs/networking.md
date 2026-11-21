@@ -78,15 +78,17 @@ Set `egress_iface` to the tunnel interface: the proxy's `MULTICAST_IF`, the
 unit's pre-start route and the multicast route the role applies all follow
 `egress_iface`, not `gre_iface`. On FreeBSD the role always names the tunnel
 `gif0` and does not read `gre_iface`, so set `egress_iface: gif0` there. On a
-running FreeBSD node a change of `egress_iface` needs a reboot: the role adds
-the live multicast route before it restarts `netif`, and it only adds the
-route, never replaces it (an existing route makes the add fail with
-`File exists`, which the task accepts). Switching to `gif0` also needs `gif0`
-to exist when that task runs, and nothing creates it before the `netif`
-restart: a first converge writes the tunnel's rc.conf lines and then stops at
-the route task (`interface 'gif0' does not exist`); reboot, which creates the
-tunnel and its route from rc.conf, and converge again. Switching back to a
-physical interface: converge, then reboot.
+running FreeBSD node the role adds the live multicast route before it
+restarts `netif`, and it only adds the route, never replaces it (an existing
+route makes the add fail with `File exists`, which the task accepts). The
+route's rc.conf line (`ipv6_route_bsp_mcast`) is not listed in
+`ipv6_static_routes`, so a boot does not install it: after a reboot the route
+is back only once a converge has run. So a change of `egress_iface` there is:
+remove the old route (or reboot), then converge. Switching to `gif0` also
+needs `gif0` to exist when the route task runs, and nothing creates it before
+the `netif` restart: a first converge writes the tunnel's rc.conf lines and
+then stops at the route task (`interface 'gif0' does not exist`); reboot,
+which creates the tunnel, and converge again, which adds the route.
 
 ### Ubuntu 24.04
 
