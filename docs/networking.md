@@ -78,12 +78,11 @@ Set `egress_iface` to the tunnel interface: the proxy's `MULTICAST_IF`, the
 unit's pre-start route and the multicast route the role applies all follow
 `egress_iface`, not `gre_iface`. On FreeBSD the role always names the tunnel
 `gif0` and does not read `gre_iface`, so set `egress_iface: gif0` there. On a
-running FreeBSD node the converge only adds the multicast route: if one
-already exists (for example through the physical interface used before), the
-add fails with `File exists`, the task passes, and the old route stays until
-a reboot. After changing `egress_iface` there, delete the old route
-(`route delete -inet6 -net <the multicast prefix>`, the scope prefix or
-`mc_route_prefix`) before the converge, or reboot after it.
+running FreeBSD node a change of `egress_iface` (to `gif0` or back) takes
+effect at the next boot, so converge and then reboot: the role adds the live
+multicast route before it restarts `netif`, which is what creates `gif0`,
+and it only adds the route, never replaces it (an existing route makes the
+add fail with `File exists`, which the task accepts).
 
 ### Ubuntu 24.04
 
