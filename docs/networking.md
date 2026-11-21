@@ -77,18 +77,14 @@ gre_inner_ipv6: "2001:db8:2::2/64"
 Set `egress_iface` to the tunnel interface: the proxy's `MULTICAST_IF`, the
 unit's pre-start route and the multicast route the role applies all follow
 `egress_iface`, not `gre_iface`. On FreeBSD the role always names the tunnel
-`gif0` and does not read `gre_iface`, so set `egress_iface: gif0` there. On a
-running FreeBSD node the role adds the live multicast route before it
-restarts `netif`, and it only adds the route, never replaces it (an existing
-route makes the add fail with `File exists`, which the task accepts). The
-route's rc.conf line (`ipv6_route_bsp_mcast`) is not listed in
-`ipv6_static_routes`, so a boot does not install it: after a reboot the route
-is back only once a converge has run. So a change of `egress_iface` there is:
-remove the old route (or reboot), then converge. Switching to `gif0` also
-needs `gif0` to exist when the route task runs, and nothing creates it before
-the `netif` restart: a first converge writes the tunnel's rc.conf lines and
-then stops at the route task (`interface 'gif0' does not exist`); reboot,
-which creates the tunnel, and converge again, which adds the route.
+`gif0` and does not read `gre_iface`, so set `egress_iface: gif0` there. The
+role restarts `netif`, which creates `gif0`, and then adds the live multicast
+route, so one converge brings up the tunnel and its route. It also lists the
+route (`bsp_mcast`) in `ipv6_static_routes`, so a boot installs it. The live
+route is only added, never replaced: an existing route for the prefix makes
+the add fail with `File exists`, which the task accepts. A change of
+`egress_iface` therefore takes effect at the next boot, or at once if you
+delete the old route (`route delete -inet6 -net <prefix>`) and converge.
 
 ### Ubuntu 24.04
 
@@ -119,6 +115,7 @@ cloned_interfaces="gif0"
 ifconfig_gif0="tunnel 2001:db8:a::1 2001:db8:a::254"
 ifconfig_gif0_ipv6="inet6 2001:db8:2::2/64"
 ipv6_route_bsp_mcast="ff05::/16 -interface gif0"
+ipv6_static_routes="bsp_mcast"
 ```
 
 ---
@@ -172,11 +169,14 @@ routes:
 
 ### Multicast route: FreeBSD 14
 
-The route is persisted via an `ipv6_route_bsp_mcast` entry in `/etc/rc.conf` and applied
-immediately via `route add -inet6`:
+The route is persisted via an `ipv6_route_bsp_mcast` entry in `/etc/rc.conf`, and its name
+is added to `ipv6_static_routes`, the list a boot (`rc.d/routing`) installs routes from.
+Names already in that list stay, and `bsp_mcast` is never listed twice. After the `netif`
+restart the role also applies the route immediately via `route add -inet6`:
 
 ```text
 ipv6_route_bsp_mcast="ff05::/16 -interface eth1"
+ipv6_static_routes="bsp_mcast"
 ```
 
 IPv4/IPv6 forwarding is also enabled:
