@@ -11,7 +11,7 @@ proxy_repo: "https://github.com/lightwebinc/shard-proxy.git"
 # Pin to the latest shard-proxy release tag; avoid "main" in production.
 # Keep terraform/modules/ingress-node/variables.tf `proxy_version` in step:
 # the module passes it as --extra-vars, which outranks this file.
-proxy_version: "v1.44.0"
+proxy_version: "v1.44.2"
 proxy_install_dir: "/opt/shard-proxy"
 proxy_bin_dir: "/usr/local/bin"
 proxy_user: "shard-proxy"
@@ -24,7 +24,7 @@ proxy_force_build: false
 
 # Go toolchain version (used when building from source)
 # Must be >= the `go` directive in shard-proxy's go.mod at proxy_version
-# (v1.44.0 requires 1.26.2); the service builds with golang:1.27 in its own CI.
+# (v1.44.2 requires 1.26.2); the service builds with golang:1.27 in its own CI.
 go_version: "1.27.4"
 go_install_dir: "/usr/local/go"
 
@@ -91,7 +91,7 @@ metrics_addr: ":9100"
 otlp_endpoint: ""
 otlp_interval: "30s"
 # Unified logging; see shard-common/docs/logging.md
-log_format: "json"            # text | json (json for fleet aggregation; collector phase is deferred)
+log_format: "json"            # text | json (json for fleet aggregation)
 log_level: "info"             # debug|info|warn|error; runtime-togglable via POST /loglevel + SIGHUP
 trace_sampling: 0             # 0..1 trace head sampling (0 = off; exports via otlp_endpoint; control-plane only)
 drain_timeout: "0s"           # Pre-drain delay on shutdown; set to ≥ LB health-check interval in production

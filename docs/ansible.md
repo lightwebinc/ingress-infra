@@ -120,7 +120,7 @@ egress interfaces, GRE, multicast routing, push-frame ingest and dedup backend i
 | `metrics_addr` | `:9100` |  |
 | `otlp_endpoint` | `""` |  |
 | `otlp_interval` | `30s` |  |
-| `log_format` | `json` | text \| json (json for fleet aggregation; collector phase is deferred) |
+| `log_format` | `json` | text \| json (json for fleet aggregation) |
 | `log_level` | `info` | debug\|info\|warn\|error; runtime-togglable via POST /loglevel + SIGHUP |
 | `trace_sampling` | `0` | 0..1 trace head sampling (0 = off; exports via otlp_endpoint; control-plane only) |
 | `drain_timeout` | `0s` | Pre-drain delay on shutdown; set to ≥ LB health-check interval in production |
