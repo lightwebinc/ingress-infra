@@ -1,41 +1,44 @@
 # Copy this file to terraform.tfvars and fill in your values.
 
-aws_region     = "us-east-1"
-name_prefix    = "ingress-infra"
-environment    = "production"
-
-vpc_cidr            = "10.10.0.0/16"
-availability_zones  = ["us-east-1a", "us-east-1b"]
-
-instance_count = 2
-instance_type  = "t3.medium"
-key_name       = "my-ec2-keypair"
-ssh_private_key = "~/.ssh/id_ed25519"
-
-ssh_allowed_cidrs     = ["0.0.0.0/0"]
-metrics_allowed_cidrs = ["0.0.0.0/0"]
-
 allocate_eips = false
+availability_zones  = ["us-east-1a", "us-east-1b"]
+aws_region     = "us-east-1"
+
+# BGP (set enable_bgp = true to use)
+# Ingress is dual-stack: configure IPv4 peer, IPv6 peer, or both
+bgp_daemon      = "bird2"
+bgp_local_as    = 65001
+bgp_peer_as     = 65000
+bgp_peer_ip     = ""         # IPv4 BGP peer (omit for IPv6-only)
+bgp_peer_ip6    = ""         # IPv6 BGP peer
+bgp_prefix  = []         # e.g. ["192.0.2.0/24"]
+bgp_prefix6 = []         # e.g. ["2001:db8::/48"]
+bgp_vip     = ""         # e.g. "192.0.2.1"
+bgp_vip6    = ""         # e.g. "2001:db8::1"
 
 # Proxy
-listen_port  = 8725   # UDP ingress port (SG rule + Ansible udp_listen_port)
-shard_bits   = 2
-egress_mode  = "ethernet"
 egress_iface = "eth1"
+egress_mode  = "ethernet"
+
+enable_bgp      = false
+
+environment    = "production"
 
 # GRE tunnel (set egress_mode = "gre" to use)
 # Fabric is IPv6-only: endpoints are IPv6 addresses
 # gre_remote_ip6 = "2001:db8:feed::1"
 
-# BGP (set enable_bgp = true to use)
-# Ingress is dual-stack: configure IPv4 peer, IPv6 peer, or both
-enable_bgp      = false
-bgp_daemon      = "bird2"
-bgp_prefix  = []         # e.g. ["192.0.2.0/24"]
-bgp_vip     = ""         # e.g. "192.0.2.1"
-bgp_prefix6 = []         # e.g. ["2001:db8::/48"]
-bgp_vip6    = ""         # e.g. "2001:db8::1"
-bgp_local_as    = 65001
-bgp_peer_as     = 65000
-bgp_peer_ip     = ""         # IPv4 BGP peer (omit for IPv6-only)
-bgp_peer_ip6    = ""         # IPv6 BGP peer
+instance_count = 2
+instance_type  = "t3.medium"
+key_name       = "my-ec2-keypair"
+
+listen_port  = 8725   # UDP ingress port (SG rule + Ansible udp_listen_port)
+
+metrics_allowed_cidrs = ["0.0.0.0/0"]
+name_prefix    = "ingress-infra"
+
+shard_bits   = 2
+
+ssh_allowed_cidrs     = ["0.0.0.0/0"]
+ssh_private_key = "~/.ssh/id_ed25519"
+vpc_cidr            = "10.10.0.0/16"

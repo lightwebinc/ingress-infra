@@ -1,5 +1,26 @@
 # Copy this file to terraform.tfvars and fill in your values.
 
+# BGP (set enable_bgp = true to use)
+# Ingress is dual-stack: configure IPv4 peer, IPv6 peer, or both
+bgp_daemon      = "bird2"
+bgp_local_as    = 65001
+bgp_peer_as     = 65000
+bgp_peer_ip     = ""         # IPv4 BGP peer (omit for IPv6-only)
+bgp_peer_ip6    = ""         # IPv6 BGP peer
+bgp_prefix  = []         # e.g. ["192.0.2.0/24"]
+bgp_prefix6 = []         # e.g. ["2001:db8::/48"]
+bgp_vip     = ""         # e.g. "192.0.2.1"
+bgp_vip6    = ""         # e.g. "2001:db8::1"
+
+egress_iface = "eth1"
+egress_mode  = "ethernet"
+
+enable_bgp      = false
+
+# GRE tunnel (set egress_mode = "gre" to use)
+# Fabric is IPv6-only: endpoints are IPv6 addresses
+# gre_remote_ip6 = "2001:db8:feed::1"
+
 hosts = [
   {
     name      = "node-01"
@@ -20,22 +41,3 @@ hosts = [
 ]
 
 shard_bits   = 2
-egress_mode  = "ethernet"
-egress_iface = "eth1"
-
-# GRE tunnel (set egress_mode = "gre" to use)
-# Fabric is IPv6-only: endpoints are IPv6 addresses
-# gre_remote_ip6 = "2001:db8:feed::1"
-
-# BGP (set enable_bgp = true to use)
-# Ingress is dual-stack: configure IPv4 peer, IPv6 peer, or both
-enable_bgp      = false
-bgp_daemon      = "bird2"
-bgp_prefix  = []         # e.g. ["192.0.2.0/24"]
-bgp_vip     = ""         # e.g. "192.0.2.1"
-bgp_prefix6 = []         # e.g. ["2001:db8::/48"]
-bgp_vip6    = ""         # e.g. "2001:db8::1"
-bgp_local_as    = 65001
-bgp_peer_as     = 65000
-bgp_peer_ip     = ""         # IPv4 BGP peer (omit for IPv6-only)
-bgp_peer_ip6    = ""         # IPv6 BGP peer
