@@ -67,11 +67,17 @@ The local and remote endpoints are IPv6 addresses.
 
 ```yaml
 egress_mode: gre
+egress_iface: gre6-bsp             # the tunnel: MULTICAST_IF and the multicast route follow egress_iface
 gre_local_ip6: "2001:db8:a::1"    # IPv6 address of this node (tunnel source)
 gre_remote_ip6: "2001:db8:a::254" # IPv6 address of the fabric router (tunnel destination)
 gre_iface: gre6-bsp               # tunnel interface name
 gre_inner_ipv6: "2001:db8:2::2/64"
 ```
+
+Set `egress_iface` to the tunnel interface: the proxy's `MULTICAST_IF`, the
+unit's pre-start route and the multicast route the role applies all follow
+`egress_iface`, not `gre_iface`. On FreeBSD the role always names the tunnel
+`gif0` and does not read `gre_iface`, so set `egress_iface: gif0` there.
 
 ### Ubuntu 24.04
 
@@ -100,7 +106,7 @@ The role appends to `/etc/rc.conf`:
 ```text
 cloned_interfaces="gif0"
 ifconfig_gif0="tunnel 2001:db8:a::1 2001:db8:a::254"
-ifconfig_gif0_ipv6="inet6 2001:db8:2::2 prefixlen 64"
+ifconfig_gif0_ipv6="inet6 2001:db8:2::2/64"
 ipv6_route_bsp_mcast="ff05::/16 -interface gif0"
 ```
 
