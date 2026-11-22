@@ -77,14 +77,33 @@ gre_inner_ipv6: "2001:db8:2::2/64"
 Set `egress_iface` to the tunnel interface: the proxy's `MULTICAST_IF`, the
 unit's pre-start route and the multicast route the role applies all follow
 `egress_iface`, not `gre_iface`. On FreeBSD the role always names the tunnel
-`gif0` and does not read `gre_iface`, so set `egress_iface: gif0` there. The
-role restarts `netif`, which creates `gif0`, and then adds the live multicast
-route, so one converge brings up the tunnel and its route. It also lists the
-route (`bsp_mcast`) in `ipv6_static_routes`, so a boot installs it. The live
-route is only added, never replaced: an existing route for the prefix makes
-the add fail with `File exists`, which the task accepts. A change of
-`egress_iface` therefore takes effect at the next boot, or at once if you
-delete the old route (`route delete -inet6 -net <prefix>`) and converge.
+`gif0` and does not read `gre_iface`, so set `egress_iface: gif0` there. It
+appends `gif0` to `cloned_interfaces`, keeping any interfaces already listed
+there. The role restarts `gif0` (`service netif restart gif0`, which creates
+it) and then adds the live multicast route, so one converge brings up the
+tunnel and its route. It restarts an interface only by name, and only when the
+configuration it writes for it changed or, for `gif0`, when it does not run that
+configuration: a converge that changes nothing leaves `gif0`, the proxy bound to
+it and every other interface alone. What each converge applied is recorded in
+`/var/db/ingress-infra-netif.json`, so a converge stopped between its rc.conf
+writes and the restart is finished by the next one. A host without that record
+(the first converge with this role) restarts only an interface that fails its
+live check (`gif0` not up with its tunnel and inner address; the ethernet
+interface down, or its rc.conf lines changed by this converge), so a node an
+earlier version set up keeps running untouched.
+It never restarts `lo0`: the BGP VIPs are added and removed live (`ifconfig
+lo0 inet VIP/32 alias`, `ifconfig lo0 inet6 VIP6 prefixlen 128 alias`,
+`-alias`), so 127.0.0.1, ::1 and the other VIP stay, and a VIP the role no
+longer gives also loses its rc.conf line.
+Every converge also compares the running `gif0` with its configuration (up, tunnel
+endpoints and inner address, by value) and restarts it when they differ; after
+a restart it stops with an error if they still differ, because `service netif
+restart` exits 0 even when an `ifconfig` it runs fails.
+It also lists the route (`bsp_mcast`) in `ipv6_static_routes`, so a boot
+installs it. When a route for the prefix already goes through another
+interface (`egress_iface` or `egress_mode` changed while the old interface
+stays up), the role moves it there with `route change`, so the change takes
+effect at once.
 
 ### Ubuntu 24.04
 
@@ -111,12 +130,15 @@ network:
 The role appends to `/etc/rc.conf`:
 
 ```text
-cloned_interfaces="gif0"
 ifconfig_gif0="tunnel 2001:db8:a::1 2001:db8:a::254"
 ifconfig_gif0_ipv6="inet6 2001:db8:2::2/64"
+cloned_interfaces="gif0"
 ipv6_route_bsp_mcast="ff05::/16 -interface gif0"
 ipv6_static_routes="bsp_mcast"
 ```
+
+When `cloned_interfaces` or `ipv6_static_routes` already lists other names,
+`gif0` and `bsp_mcast` are added to that list instead.
 
 ---
 
@@ -135,6 +157,17 @@ The route prefix is derived automatically from `mc_scope`:
 | `site` | `ff05::/16` |
 | `org` | `ff08::/16` |
 | `global` | `ff0e::/16` |
+
+On FreeBSD hosts `link` installs no multicast route: FreeBSD reserves
+`ff02::/16` (at boot `rc.d/routing` installs `ff02::/16 ::1 -reject`), so a
+route for it can never be installed. Sending does not need one: the
+shard-proxy sets `IPV6_MULTICAST_IF` on the egress interface, and FreeBSD then
+picks that interface without a route lookup (`ip6_output()`, `in6_src.c`
+`selectroute()`), so a single-segment link-scope fabric works. The role
+skips the route, removes a route line an earlier converge wrote for another
+scope, and prints a warning; a sender that does not set `IPV6_MULTICAST_IF`
+hits the reject route. The same applies to an `mc_route_prefix` of
+`ff02::/16` in any spelling.
 
 To override (e.g. when `mc_group_id` narrows the address space further):
 
@@ -171,8 +204,8 @@ routes:
 
 The route is persisted via an `ipv6_route_bsp_mcast` entry in `/etc/rc.conf`, and its name
 is added to `ipv6_static_routes`, the list a boot (`rc.d/routing`) installs routes from.
-Names already in that list stay, and `bsp_mcast` is never listed twice. After the `netif`
-restart the role also applies the route immediately via `route add -inet6`:
+Names already in that list stay, and `bsp_mcast` is never listed twice. After restarting
+any interface it changed, the role also applies the route immediately via `route add -inet6`:
 
 ```text
 ipv6_route_bsp_mcast="ff05::/16 -interface eth1"

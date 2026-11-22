@@ -110,7 +110,7 @@ egress interfaces, GRE, multicast routing, push-frame ingest and dedup backend i
 | `proxy_egress_hoplimit` | `1` | IPV6_MULTICAST_HOPS on egress. 1 = single L2 segment (binary default, non-breaking). Set to 64 for a routed / ip6gre-mesh fabric so egress multicast frames survive past the first hop (cross-tunnel). |
 | `egress_multicast_loop` | `false` | IPV6_MULTICAST_LOOP on egress. Only needed on collapsed/mesh router nodes so locally-originated multicast is forwarded by the kernel MFC. |
 | `shard_bits` | `2` |  |
-| `mc_scope` | `site` |  |
+| `mc_scope` | `site` | link \| site \| org \| global. On FreeBSD, link installs no route (hosts reserve ff02::/16) and sending relies on `IPV6_MULTICAST_IF`; the run warns. |
 | `mc_group_id` | `0x000B` |  |
 | `source_mode` | `ssm` | Multicast addressing model: ssm (default; FF3x::/32 per RFC 4607, requires PIM-SSM in the fabric) \| asm (lab fallback). bind_source is required and MUST be a unique IPv6 literal per replica when source_mode is ssm. |
 | `bind_source` | `""` |  |
@@ -146,6 +146,25 @@ egress interfaces, GRE, multicast routing, push-frame ingest and dedup backend i
 | `allow_stamped_ingress` | `false` | ALLOW_STAMPED_INGRESS: accept already-sequenced frames (relay / spine collect lane) |
 | `ingress_dedup` | `true` | INGRESS_DEDUP: false bypasses ingress TxID dedup entirely |
 | `recv_buf_bytes` | `0` | BSP_RECV_BUF_BYTES: per-worker SO_RCVBUF (0 = worker default) |
+
+### Optional binary flags
+
+Each renders only when set: `""`, null or `false` passes nothing (a number,
+`0` included, renders), so the binary default applies and an older binary keeps
+working.
+
+| Variable | Default | Notes |
+|---|---|---|
+| `bridging_window` | `""` | BRIDGING_WINDOW: reserved for live-resharding bridging; parsed, not read |
+| `control_group_compat` | `""` | CONTROL_GROUP_COMPAT: asm-only \| both (binary default) \| derived; control-plane group prefix during the FF0x to FF3x move |
+| `live_resharding` | `false` | LIVE_RESHARDING: opt-in BRC-139 dual emit to the successor layout while an announced Successor block holds quorum; nothing cuts over by itself (restart onto the successor's shard bits) |
+| `manifest_beacon_port` | `""` | MANIFEST_BEACON_PORT: UDP port for BRC-139 manifests (binary default 9001) |
+| `manifest_beacon_scope` | `""` | MANIFEST_BEACON_SCOPE: scope of the beacon-group join (binary default: `mc_scope`) |
+| `manifest_bootstrap` | `""` | MANIFEST_BOOTSTRAP: optional (binary default) \| required; validated, not acted on |
+| `manifest_consumer_enabled` | `false` | MANIFEST_CONSUMER_ENABLED: opt-in BRC-139 manifest consumer. On the pinned proxy v1.44.2 without `live_resharding` it stops the proxy about 2 s after every start (it reads its own flags as a new layout and restarts to adopt it), so leave it off there |
+| `pilot_hysteresis` | `""` | PILOT_HYSTERESIS: wait before adopting a manifest (binary default 0 = twice its announce interval) |
+| `pilot_quorum` | `""` | PILOT_QUORUM: distinct authoritative announcers required to adopt a manifest (binary default 2) |
+| `proxy_pprof` | `false` | BSP_PPROF: serve net/http/pprof at /debug/pprof/* on the metrics port (profiling only) |
 
 ### Networking
 
