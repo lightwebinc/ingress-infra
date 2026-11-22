@@ -5,6 +5,10 @@
 # Egress interface name (first entry when a list is given).
 networking_egress_iface: "{{ egress_iface if egress_iface is string else egress_iface[0] }}"
 
+# FreeBSD: the interface the role configures and restarts when that changes.
+# GRE mode always names the tunnel gif0.
+networking_data_iface: "{{ 'gif0' if egress_mode == 'gre' else networking_egress_iface }}"
+
 # Resolved multicast route prefix: honor explicit override, else derive from scope.
 networking_mc_route_prefix: "{{ mc_route_prefix if mc_route_prefix | length > 0 else networking_mc_scope_prefix_map[mc_scope] }}"
 

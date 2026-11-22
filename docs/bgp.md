@@ -281,9 +281,9 @@ by the separate `ansible/bgp-ibgp.yml` playbook against the `bgp_ibgp_nodes` inv
 bgp_ibgp_peers:
   # At least one of peer_ip or peer_ip6 is required per entry.
   # Include both for dual-stack peers.
-  - { peer_ip: "10.0.1.1", description: "proxy-node-01" }          # v4 only
-  - { peer_ip6: "2001:db8:100::1", description: "proxy-node-02" }  # v6 only
-  - { peer_ip: "10.0.1.3", peer_ip6: "2001:db8:100::3", description: "proxy-node-03" } # dual-stack
+  - { peer_ip: "198.51.100.11", description: "proxy-node-01" }    # v4 only
+  - { peer_ip6: "2001:db8:100::1", description: "proxy-node-02" } # v6 only
+  - { peer_ip: "198.51.100.13", peer_ip6: "2001:db8:100::3", description: "proxy-node-03" } # dual-stack
 ```
 
 The `bgp_local_as`, `bgp_prefix` (list), `bgp_prefix6` (list), `bgp_hold_time`, `bgp_keepalive`,
@@ -297,7 +297,7 @@ For each peer entry the template generates one or two `protocol bgp` blocks:
 # Peer with peer_ip set
 protocol bgp ibgp_0_v4 {
   local as 65001;
-  neighbor 10.0.1.1 as 65001;   # same AS = iBGP
+  neighbor 198.51.100.11 as 65001;   # same AS = iBGP
   ...
   ipv4 { next hop self; import filter accept_none; export filter export_bgp4; };
 }
@@ -315,16 +315,16 @@ protocol bgp ibgp_0_v6 {
 
 ```frr
 router bgp 65001
- neighbor 10.0.1.1 remote-as 65001
- neighbor 10.0.1.1 update-source 192.0.2.1  ! if bgp_vip set
+ neighbor 198.51.100.11 remote-as 65001
+ neighbor 198.51.100.11 update-source 192.0.2.1  ! if bgp_vip set
  neighbor 2001:db8:100::3 remote-as 65001
  neighbor 2001:db8:100::3 update-source 2001:db8::1 ! if bgp_vip6 set
  !
  address-family ipv4 unicast
   network 192.0.2.0/24
-  neighbor 10.0.1.1 next-hop-self
-  neighbor 10.0.1.1 route-map EXPORT4 out
-  neighbor 10.0.1.1 route-map DENY in
+  neighbor 198.51.100.11 next-hop-self
+  neighbor 198.51.100.11 route-map EXPORT4 out
+  neighbor 198.51.100.11 route-map DENY in
  exit-address-family
  !
  address-family ipv6 unicast

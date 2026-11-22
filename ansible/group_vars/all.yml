@@ -134,8 +134,9 @@ allow_stamped_ingress: false   # ALLOW_STAMPED_INGRESS: accept already-sequenced
 ingress_dedup: true            # INGRESS_DEDUP: false bypasses ingress TxID dedup entirely
 recv_buf_bytes: 0              # BSP_RECV_BUF_BYTES: per-worker SO_RCVBUF (0 = worker default)
 
-# Optional binary flags. Each renders only when set: "" (or false) passes
-# nothing, so the binary default applies and an older binary keeps working.
+# Optional binary flags. Each renders only when set: "", null or false passes
+# nothing (a number, 0 included, renders), so the binary default applies and an
+# older binary keeps working.
 bridging_window: ""            # BRIDGING_WINDOW: local floor on live-resharding bridging (default 0 = honor the manifest's transition epoch)
 control_group_compat: ""       # CONTROL_GROUP_COMPAT: asm-only | both (default) | derived; control-plane group prefix during the FF0x to FF3x move
 live_resharding: false         # LIVE_RESHARDING: opt-in BRC-139 live-resharding bridging (default: restart on ShardBits adoption)
