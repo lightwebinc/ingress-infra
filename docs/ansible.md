@@ -161,7 +161,7 @@ working.
 | `manifest_beacon_port` | `""` | MANIFEST_BEACON_PORT: UDP port for BRC-139 manifests (binary default 9001) |
 | `manifest_beacon_scope` | `""` | MANIFEST_BEACON_SCOPE: scope of the beacon-group join (binary default: `mc_scope`) |
 | `manifest_bootstrap` | `""` | MANIFEST_BOOTSTRAP: optional (binary default) \| required; validated, not acted on |
-| `manifest_consumer_enabled` | `false` | MANIFEST_CONSUMER_ENABLED: opt-in BRC-139 manifest consumer. On the pinned proxy v1.44.2 without `live_resharding` it stops the proxy about 2 s after every start (it reads its own flags as a new layout and restarts to adopt it), so leave it off there |
+| `manifest_consumer_enabled` | `false` | MANIFEST_CONSUMER_ENABLED: opt-in BRC-139 manifest consumer. From proxy v1.44.3 (the pinned version) the consumer only observes: it never restarts the proxy and never changes the running layout. A manifest that disagrees with the CLI-pinned `shard-bits`, `source-mode` or `beef-shard-bits` shows as divergence per field (`multicast_manifest_divergence_total{field}`, plus a warning log); to adopt a new value, change the setting and restart |
 | `pilot_hysteresis` | `""` | PILOT_HYSTERESIS: wait before adopting a manifest (binary default 0 = twice its announce interval) |
 | `pilot_quorum` | `""` | PILOT_QUORUM: distinct authoritative announcers required to adopt a manifest (binary default 2) |
 | `proxy_pprof` | `false` | BSP_PPROF: serve net/http/pprof at /debug/pprof/* on the metrics port (profiling only) |
