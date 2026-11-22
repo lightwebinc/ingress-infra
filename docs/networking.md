@@ -84,7 +84,10 @@ it) and then adds the live multicast route, so one converge brings up the
 tunnel and its route. It restarts an interface only by name, and only when the
 configuration it writes for it changed (`lo0` for a BGP VIP) or, for `gif0`,
 when it is missing: a converge that changes nothing leaves `gif0`, the proxy
-bound to it and every other interface alone.
+bound to it and every other interface alone. What each restart applied is
+recorded in `/var/db/ingress-infra-netif.json`, so a converge stopped between
+its rc.conf writes and the restart is finished by the next one; the first
+converge on a host without that record restarts the interface once.
 It also lists the route (`bsp_mcast`) in `ipv6_static_routes`, so a boot
 installs it. The live route is only added, never replaced: an existing route for the prefix makes
 the add fail with `File exists`, which the task accepts. A change of
