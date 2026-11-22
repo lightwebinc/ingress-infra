@@ -155,13 +155,13 @@ working.
 
 | Variable | Default | Notes |
 |---|---|---|
-| `bridging_window` | `""` | BRIDGING_WINDOW: local floor on live-resharding bridging (binary default 0 = honor the manifest's transition epoch) |
+| `bridging_window` | `""` | BRIDGING_WINDOW: reserved for live-resharding bridging; parsed, not read |
 | `control_group_compat` | `""` | CONTROL_GROUP_COMPAT: asm-only \| both (binary default) \| derived; control-plane group prefix during the FF0x to FF3x move |
-| `live_resharding` | `false` | LIVE_RESHARDING: opt-in BRC-139 live-resharding bridging (binary default: restart on ShardBits adoption) |
+| `live_resharding` | `false` | LIVE_RESHARDING: opt-in BRC-139 dual emit to the successor layout while an announced Successor block holds quorum; nothing cuts over by itself (restart onto the successor's shard bits) |
 | `manifest_beacon_port` | `""` | MANIFEST_BEACON_PORT: UDP port for BRC-139 manifests (binary default 9001) |
 | `manifest_beacon_scope` | `""` | MANIFEST_BEACON_SCOPE: scope of the beacon-group join (binary default: `mc_scope`) |
-| `manifest_bootstrap` | `""` | MANIFEST_BOOTSTRAP: optional (binary default) \| required (refuse the data-plane bind until quorum) |
-| `manifest_consumer_enabled` | `false` | MANIFEST_CONSUMER_ENABLED: opt-in BRC-139 manifest consumer for automatic shard config |
+| `manifest_bootstrap` | `""` | MANIFEST_BOOTSTRAP: optional (binary default) \| required; validated, not acted on |
+| `manifest_consumer_enabled` | `false` | MANIFEST_CONSUMER_ENABLED: opt-in BRC-139 manifest consumer. On the pinned proxy v1.44.2 without `live_resharding` it stops the proxy about 2 s after every start (it reads its own flags as a new layout and restarts to adopt it), so leave it off there |
 | `pilot_hysteresis` | `""` | PILOT_HYSTERESIS: wait before adopting a manifest (binary default 0 = twice its announce interval) |
 | `pilot_quorum` | `""` | PILOT_QUORUM: distinct authoritative announcers required to adopt a manifest (binary default 2) |
 | `proxy_pprof` | `false` | BSP_PPROF: serve net/http/pprof at /debug/pprof/* on the metrics port (profiling only) |
