@@ -110,7 +110,7 @@ egress interfaces, GRE, multicast routing, push-frame ingest and dedup backend i
 | `proxy_egress_hoplimit` | `1` | IPV6_MULTICAST_HOPS on egress. 1 = single L2 segment (binary default, non-breaking). Set to 64 for a routed / ip6gre-mesh fabric so egress multicast frames survive past the first hop (cross-tunnel). |
 | `egress_multicast_loop` | `false` | IPV6_MULTICAST_LOOP on egress. Only needed on collapsed/mesh router nodes so locally-originated multicast is forwarded by the kernel MFC. |
 | `shard_bits` | `2` |  |
-| `mc_scope` | `site` | link \| site \| org \| global. link is refused on FreeBSD hosts, which reserve ff02::/16. |
+| `mc_scope` | `site` | link \| site \| org \| global. On FreeBSD, link installs no route (hosts reserve ff02::/16) and sending relies on `IPV6_MULTICAST_IF`; the run warns. |
 | `mc_group_id` | `0x000B` |  |
 | `source_mode` | `ssm` | Multicast addressing model: ssm (default; FF3x::/32 per RFC 4607, requires PIM-SSM in the fabric) \| asm (lab fallback). bind_source is required and MUST be a unique IPv6 literal per replica when source_mode is ssm. |
 | `bind_source` | `""` |  |

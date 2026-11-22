@@ -74,7 +74,8 @@ proxy_egress_hoplimit: 1
 # so locally-originated multicast is forwarded by the kernel MFC.
 egress_multicast_loop: false
 shard_bits: 2
-# link | site | org | global. link is refused on FreeBSD hosts, which reserve ff02::/16.
+# link | site | org | global. On FreeBSD, link installs no route (ff02::/16 is
+# reserved) and sending relies on IPV6_MULTICAST_IF; the run warns.
 mc_scope: "site"
 mc_group_id: "0x000B"
 # Multicast addressing model: ssm (default) | asm (lab fallback) (FF3x::/32 per RFC 4607;
