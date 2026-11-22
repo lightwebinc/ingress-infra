@@ -22,7 +22,8 @@ sudo tail -f /var/log/shard_proxy.log
   `ifconfig_<iface>_ipv6`.
 - Multicast route: `ipv6_route_bsp_mcast`, listed in `ipv6_static_routes` so
   a boot installs it.
-- BGP VIPs: `ifconfig_lo0_alias0` (IPv4) and `ifconfig_lo0_alias1` (IPv6).
+- BGP VIPs: `ifconfig_lo0_alias0` (IPv4) and `ifconfig_lo0_alias1` (IPv6),
+  added and removed on `lo0` live; `lo0` is never restarted.
 - Forwarding: `gateway_enable="YES"` and `ipv6_gateway_enable="YES"`.
 
 ## Ports

@@ -396,6 +396,10 @@ ifconfig_lo0_alias0="inet {{ bgp_vip }} netmask 255.255.255.255"  # IPv4 VIP
 ifconfig_lo0_alias1="inet6 {{ bgp_vip6 }} prefixlen 128"          # IPv6 VIP
 ```
 
+A converge adds and removes the VIPs on `lo0` live, one alias at a time, and
+never restarts `lo0`, which would remove 127.0.0.1, ::1 and the VIP the BGP
+sessions are sourced from. A VIP the inventory no longer gives loses its line.
+
 ---
 
 ## Choosing a daemon

@@ -82,12 +82,19 @@ appends `gif0` to `cloned_interfaces`, keeping any interfaces already listed
 there. The role restarts `gif0` (`service netif restart gif0`, which creates
 it) and then adds the live multicast route, so one converge brings up the
 tunnel and its route. It restarts an interface only by name, and only when the
-configuration it writes for it changed (`lo0` for a BGP VIP) or, for `gif0`,
-when it does not run that configuration: a converge that changes nothing leaves `gif0`, the proxy
-bound to it and every other interface alone. What each restart applied is
-recorded in `/var/db/ingress-infra-netif.json`, so a converge stopped between
-its rc.conf writes and the restart is finished by the next one; the first
-converge on a host without that record restarts the interface once.
+configuration it writes for it changed or, for `gif0`, when it does not run that
+configuration: a converge that changes nothing leaves `gif0`, the proxy bound to
+it and every other interface alone. What each converge applied is recorded in
+`/var/db/ingress-infra-netif.json`, so a converge stopped between its rc.conf
+writes and the restart is finished by the next one. A host without that record
+(the first converge with this role) restarts only an interface that fails its
+live check (`gif0` not up with its tunnel and inner address; the ethernet
+interface down, or its rc.conf lines changed by this converge), so a node an
+earlier version set up keeps running untouched.
+It never restarts `lo0`: the BGP VIPs are added and removed live (`ifconfig
+lo0 inet VIP/32 alias`, `ifconfig lo0 inet6 VIP6 prefixlen 128 alias`,
+`-alias`), so 127.0.0.1, ::1 and the other VIP stay, and a VIP the role no
+longer gives also loses its rc.conf line.
 Every converge also compares the running `gif0` with its configuration (up, tunnel
 endpoints and inner address, by value) and restarts it when they differ; after
 a restart it stops with an error if they still differ, because `service netif
