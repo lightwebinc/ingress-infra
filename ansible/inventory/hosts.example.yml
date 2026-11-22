@@ -63,6 +63,6 @@ all:
     #         # v4-only peer
     #         - { peer_ip: "10.0.1.1", description: "proxy-node-01" }
     #         # v6-only peer
-    #         - { peer_ip6: "fd00::1", description: "proxy-node-02" }
+    #         - { peer_ip6: "2001:db8:100::1", description: "proxy-node-02" }
     #         # dual-stack peer
-    #         - { peer_ip: "10.0.1.3", peer_ip6: "fd00::3", description: "proxy-node-03" }
+    #         - { peer_ip: "10.0.1.3", peer_ip6: "2001:db8:100::3", description: "proxy-node-03" }
