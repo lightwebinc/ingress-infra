@@ -20,6 +20,8 @@ sudo tail -f /var/log/shard_proxy.log
 
 - Ingress interface: dual-stack (DHCP + SLAAC) via `ifconfig_<iface>` and
   `ifconfig_<iface>_ipv6`.
+- Multicast route: `ipv6_route_bsp_mcast`, listed in `ipv6_static_routes` so
+  a boot installs it.
 - BGP VIPs: `ifconfig_lo0_alias0` (IPv4) and `ifconfig_lo0_alias1` (IPv6).
 - Forwarding: `gateway_enable="YES"` and `ipv6_gateway_enable="YES"`.
 
