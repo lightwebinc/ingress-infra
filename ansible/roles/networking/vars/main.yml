@@ -9,11 +9,14 @@ networking_egress_iface: "{{ egress_iface if egress_iface is string else egress_
 # GRE mode always names the tunnel gif0.
 networking_data_iface: "{{ 'gif0' if egress_mode == 'gre' else networking_egress_iface }}"
 
+# FreeBSD GRE: the outer source and destination of gif0's tunnel.
+networking_gre_tunnel: ["{{ gre_local_ip6 }}", "{{ gre_remote_ip6 }}"]
+
 # FreeBSD: per interface, the settings this role writes to rc.conf for it. A
 # restart applies them, and networking_netif_state_file records what the last
 # successful restart applied: an interface whose entry differs is restarted.
 networking_netif_desired: >-
-  {{ {networking_data_iface: ('gre ' ~ gre_local_ip6 ~ ' ' ~ gre_remote_ip6 ~ ' ' ~ gre_inner_ipv6)
+  {{ {networking_data_iface: ('gre ' ~ (networking_gre_tunnel | join(' ')) ~ ' ' ~ gre_inner_ipv6)
                              if egress_mode == 'gre' else 'ethernet'}
      | combine({'lo0': 'vip ' ~ bgp_vip ~ ' ' ~ bgp_vip6}
                if (enable_bgp | bool and (bgp_vip ~ bgp_vip6) | length > 0) else {}) }}

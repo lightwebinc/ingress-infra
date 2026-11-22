@@ -83,16 +83,20 @@ there. The role restarts `gif0` (`service netif restart gif0`, which creates
 it) and then adds the live multicast route, so one converge brings up the
 tunnel and its route. It restarts an interface only by name, and only when the
 configuration it writes for it changed (`lo0` for a BGP VIP) or, for `gif0`,
-when it is missing: a converge that changes nothing leaves `gif0`, the proxy
+when it does not run that configuration: a converge that changes nothing leaves `gif0`, the proxy
 bound to it and every other interface alone. What each restart applied is
 recorded in `/var/db/ingress-infra-netif.json`, so a converge stopped between
 its rc.conf writes and the restart is finished by the next one; the first
 converge on a host without that record restarts the interface once.
+Every converge also compares the running `gif0` with its configuration (tunnel
+endpoints and inner address, by value) and restarts it when they differ; after
+a restart it stops with an error if they still differ, because `service netif
+restart` exits 0 even when an `ifconfig` it runs fails.
 It also lists the route (`bsp_mcast`) in `ipv6_static_routes`, so a boot
-installs it. The live route is only added, never replaced: an existing route for the prefix makes
-the add fail with `File exists`, which the task accepts. A change of
-`egress_iface` therefore takes effect at the next boot, or at once if you
-delete the old route (`route delete -inet6 -net <prefix>`) and converge.
+installs it. When a route for the prefix already goes through another
+interface (`egress_iface` or `egress_mode` changed while the old interface
+stays up), the role moves it there with `route change`, so the change takes
+effect at once.
 
 ### Ubuntu 24.04
 
